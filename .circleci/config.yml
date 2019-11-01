@@ -1,0 +1,12 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: adsholoko/smallgo:latest
+
+    working_directory: /go/src/github.com/ad-sho-loko/smallgo
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: make test
