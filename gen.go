@@ -26,6 +26,14 @@ func gen(n Node) {
 		case DIV:
 			emit("cqo\n")
 			emit("idiv rdi")
+		case EQL:
+			emit("cmp rax, rdi")
+			emit("sete al")
+			emit("movzb rax, al")
+		case NEQ:
+			emit("cmp rax, rdi")
+			emit("setne al")
+			emit("movzb rax, al")
 		}
 		emit("push rax")
 	default:

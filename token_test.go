@@ -34,7 +34,8 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte("/"), Token{Kind: DIV, Val: ""}},
 		{[]byte("("), Token{Kind: LPAREN, Val: ""}},
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
-
+		{[]byte("=="), Token{Kind: EQL, Val: ""}},
+		{[]byte("!="), Token{Kind: NEQ, Val: ""}},
 	}
 
 	for _, tt := range tests {

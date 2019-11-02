@@ -85,7 +85,7 @@ func (p *Parser) mul() Expr{
 	}
 }
 
-func (p *Parser) expr() Expr {
+func (p *Parser) add() Expr{
 	n := p.mul()
 	for ;;{
 		if p.consume(ADD) {
@@ -100,6 +100,27 @@ func (p *Parser) expr() Expr {
 			return n
 		}
 	}
+}
+
+func (p *Parser) eq() Expr {
+	n := p.add()
+	for ;; {
+		if p.consume(EQL) {
+			left := n.(Expr)
+			right := p.mul().(Expr)
+			n = &Binary{Kind: EQL, Left: left, Right: right}
+		}else if p.consume(NEQ){
+			left := n.(Expr)
+			right := p.mul().(Expr)
+			n = &Binary{Kind: NEQ, Left: left, Right: right}
+		} else {
+			return n
+		}
+	}
+}
+
+func (p *Parser) expr() Expr {
+	return p.eq()
 }
 
 func (p *Parser) Parse() Node {

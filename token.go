@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Tokenizer struct {
 	b   []byte
@@ -22,6 +24,10 @@ const (
 	DIV
 	LPAREN
 	RPAREN
+	ASSIGN
+	EQL
+	NEQ
+	NOT
 	EOF
 )
 
@@ -33,6 +39,10 @@ var tokenString = map[TokenKind]string{
 	DIV:    "DIV",
 	LPAREN: "LPAREN",
 	RPAREN: "RPAREN",
+	ASSIGN: "ASSIGN",
+	EQL:    "EQL",
+	NEQ:    "NEQ",
+	NOT:    "NOT",
 	EOF:    "EOF",
 }
 
@@ -77,6 +87,14 @@ func (t *Tokenizer) isSpace() bool {
 func (t *Tokenizer) skipSpace() {
 	for ; !t.isEof() && t.isSpace(); t.pos++ {
 	}
+}
+
+func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind{
+	if t.peek() == '='{
+		return kind2
+	}
+
+	return kind1
 }
 
 func (t *Tokenizer) readNumeric() string {
@@ -124,10 +142,19 @@ func (t *Tokenizer) Tokenize() []*Token {
 		case ')':
 			tokens = append(tokens, t.newToken(RPAREN, ""))
 			t.pos++
+		case '=':
+			t.pos++
+			kind := t.switch2(ASSIGN, EQL)
+			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
+		case '!':
+			t.pos++
+			kind := t.switch2(NOT, NEQ)
+			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))
 		}
-
 	}
 
 	tokens = append(tokens, t.newToken(EOF, ""))
