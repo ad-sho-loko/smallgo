@@ -23,7 +23,7 @@ func walkAssert(t *testing.T, got, want Node) {
 	}
 }
 
-func TestAdd(t *testing.T) {
+func TestParse_Add(t *testing.T) {
 	test := struct {
 		b    []*Token
 		want Node
@@ -46,7 +46,7 @@ func TestAdd(t *testing.T) {
 	walkAssert(t, ast, test.want)
 }
 
-func TestAddPolynomial(t *testing.T) {
+func TestParse_AddPolynomial(t *testing.T) {
 	test := struct {
 		b    []*Token
 		want Node
@@ -79,7 +79,7 @@ func TestAddPolynomial(t *testing.T) {
 }
 
 
-func TestMul(t *testing.T) {
+func TestParse_Mul(t *testing.T) {
 	test := struct {
 		b    []*Token
 		want Node
@@ -94,6 +94,67 @@ func TestMul(t *testing.T) {
 			Kind:  MUL,
 			Left:  &Lit{Kind: NUMBER, Val: "3"},
 			Right: &Lit{Kind: NUMBER, Val: "2"},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.Parse()
+	walkAssert(t, ast, test.want)
+}
+
+func TestParse_Precedence(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want Node
+	}{
+		b: []*Token{
+			{Kind: NUMBER, Val: "2"},
+			{Kind: ADD, Val: ""},
+			{Kind: NUMBER, Val: "3"},
+			{Kind: MUL, Val: ""},
+			{Kind: NUMBER, Val: "4"},
+			{Kind:EOF, Val:""},
+		},
+		want: &Op{
+			Kind:  ADD,
+			Left:  &Lit{Kind: NUMBER, Val: "2"},
+			Right: &Op{
+				Kind:MUL,
+				Left:  &Lit{Kind: NUMBER, Val: "3"},
+				Right:  &Lit{Kind: NUMBER, Val: "4"},
+			},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.Parse()
+	walkAssert(t, ast, test.want)
+}
+
+
+func TestParse_Paren(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want Node
+	}{
+		b: []*Token{
+			{Kind: NUMBER, Val: "2"},
+			{Kind: MUL, Val: ""},
+			{Kind: LPAREN, Val: ""},
+			{Kind: NUMBER, Val: "3"},
+			{Kind: ADD, Val: ""},
+			{Kind: NUMBER, Val: "4"},
+			{Kind: RPAREN, Val: ""},
+			{Kind:EOF, Val:""},
+		},
+		want: &Op{
+			Kind:  MUL,
+			Left:  &Lit{Kind: NUMBER, Val: "2"},
+			Right: &Op{
+				Kind:ADD,
+				Left:  &Lit{Kind: NUMBER, Val: "3"},
+				Right:  &Lit{Kind: NUMBER, Val: "4"},
+			},
 		},
 	}
 

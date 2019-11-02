@@ -20,6 +20,8 @@ const (
 	SUB
 	MUL
 	DIV
+	LPAREN
+	RPAREN
 	EOF
 )
 
@@ -29,6 +31,8 @@ var tokenString = map[TokenKind]string{
 	SUB:    "SUB",
 	MUL:    "MUL",
 	DIV:    "DIV",
+	LPAREN: "LPAREN",
+	RPAREN: "RPAREN",
 	EOF:    "EOF",
 }
 
@@ -113,6 +117,12 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case '/':
 			tokens = append(tokens, t.newToken(DIV, ""))
+			t.pos++
+		case '(':
+			tokens = append(tokens, t.newToken(LPAREN, ""))
+			t.pos++
+		case ')':
+			tokens = append(tokens, t.newToken(RPAREN, ""))
 			t.pos++
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))

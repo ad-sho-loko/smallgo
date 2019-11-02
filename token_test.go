@@ -32,6 +32,8 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte("-"), Token{Kind: SUB, Val: ""}},
 		{[]byte("*"), Token{Kind: MUL, Val: ""}},
 		{[]byte("/"), Token{Kind: DIV, Val: ""}},
+		{[]byte("("), Token{Kind: LPAREN, Val: ""}},
+		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 
 	}
 
