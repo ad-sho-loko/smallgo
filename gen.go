@@ -74,6 +74,10 @@ func gen(ast *Ast, n Node) {
 		case DIV:
 			emit("cqo")
 			emit("idiv rdi")
+		case MOD:
+			emit("cqo")
+			emit("idiv rdi")
+			emit("mov rax, rdx")
 		case EQL:
 			emit("cmp rax, rdi")
 			emit("sete al")

@@ -22,6 +22,7 @@ const (
 	SUB              // -
 	MUL              // *
 	DIV              // /
+	MOD              // %
 	LPAREN           // (
 	RPAREN           // )
 	ASSIGN           // =
@@ -44,6 +45,7 @@ var tokenString = map[TokenKind]string{
 	SUB:    "SUB",
 	MUL:    "MUL",
 	DIV:    "DIV",
+	MOD:    "MOD",
 	LPAREN: "LPAREN",
 	RPAREN: "RPAREN",
 	ASSIGN: "ASSIGN",
@@ -197,6 +199,9 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case '/':
 			tokens = append(tokens, t.newToken(DIV, ""))
+			t.pos++
+		case '%':
+			tokens = append(tokens, t.newToken(MOD, ""))
 			t.pos++
 		case '(':
 			tokens = append(tokens, t.newToken(LPAREN, ""))

@@ -88,6 +88,10 @@ func (p *Parser) mul() Expr {
 			left := n.(Expr)
 			right := p.unary().(Expr)
 			n = &Binary{Kind: DIV, Left: left, Right: right}
+		} else if p.consume(MOD) {
+			left := n.(Expr)
+			right := p.unary().(Expr)
+			n = &Binary{Kind: MOD, Left: left, Right: right}
 		} else {
 			return n
 		}
@@ -157,6 +161,7 @@ func (p *Parser) expr() Expr {
 	return p.eq()
 }
 
+// ex) x = 3
 func (p *Parser) assign() *AssignStmt {
 	lhs := p.expr()
 	p.expect(ASSIGN)
