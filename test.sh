@@ -22,5 +22,7 @@ try 42 42
 try 5 '2+3'
 try 1 '3-2'
 try 8 '2+3+3'
+try 12 '4*3'
+try 2 '6/3'
 
 echo OK

@@ -65,6 +65,23 @@ func (p *Parser) add() Node {
 	}
 }
 
+func (p *Parser) mul() Node{
+	n := p.add()
+	for ;;{
+		if p.consume(MUL) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Op{Kind: MUL, Left: left, Right: right}
+		} else if p.consume(DIV) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Op{Kind: DIV, Left: left, Right: right}
+		} else{
+			return n
+		}
+	}
+}
+
 func (p *Parser) Parse() Node {
-	return p.add()
+	return p.mul()
 }

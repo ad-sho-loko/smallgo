@@ -18,6 +18,8 @@ const (
 	NUMBER TokenKind = iota + 1
 	ADD
 	SUB
+	MUL
+	DIV
 	EOF
 )
 
@@ -25,6 +27,8 @@ var tokenString = map[TokenKind]string{
 	NUMBER: "NUMBER",
 	ADD:    "ADD",
 	SUB:    "SUB",
+	MUL:    "MUL",
+	DIV:    "DIV",
 	EOF:    "EOF",
 }
 
@@ -103,6 +107,12 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case '-':
 			tokens = append(tokens, t.newToken(SUB, ""))
+			t.pos++
+		case '*':
+			tokens = append(tokens, t.newToken(MUL, ""))
+			t.pos++
+		case '/':
+			tokens = append(tokens, t.newToken(DIV, ""))
 			t.pos++
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))

@@ -79,19 +79,19 @@ func TestAddPolynomial(t *testing.T) {
 }
 
 
-func TestSub(t *testing.T) {
+func TestMul(t *testing.T) {
 	test := struct {
 		b    []*Token
 		want Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "3"},
-			{Kind: SUB, Val: ""},
+			{Kind: MUL, Val: ""},
 			{Kind: NUMBER, Val: "2"},
 			{Kind:EOF, Val:""},
 		},
 		want: &Op{
-			Kind:  SUB,
+			Kind:  MUL,
 			Left:  &Lit{Kind: NUMBER, Val: "3"},
 			Right: &Lit{Kind: NUMBER, Val: "2"},
 		},

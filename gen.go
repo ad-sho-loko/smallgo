@@ -13,6 +13,7 @@ func top(n Node) {
 	case *Op:
 		top(v.Left)
 		top(v.Right)
+
 		emit("pop rdi")
 		emit("pop rax")
 		switch v.Kind {
@@ -20,6 +21,11 @@ func top(n Node) {
 			emit("add rax, rdi")
 		case SUB:
 			emit("sub rax, rdi")
+		case MUL:
+			emit("imul rax, rdi")
+		case DIV:
+			emit("cqo\n")
+			emit("idiv rdi")
 		}
 		emit("push rax")
 	default:
