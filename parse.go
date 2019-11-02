@@ -43,9 +43,18 @@ func (p *Parser) expect(t TokenKind) *Token {
 	return c
 }
 
-func (p *Parser) num() Expr {
-	tkn := p.expect(NUMBER)
-	return &Lit{Kind: tkn.Kind, Val: tkn.Val}
+func (p *Parser) factor() Expr {
+	if p.peek().Kind == NUMBER {
+		tkn := p.expect(NUMBER)
+		return &Lit{Kind: tkn.Kind, Val: tkn.Val}
+	}
+
+	if p.peek().Kind == IDENT {
+		tkn := p.expect(IDENT)
+		return &Ident{Name: tkn.Val}
+	}
+
+	panic(fmt.Sprintf("parse.go : invalid factor %s", p.peek()))
 }
 
 func (p *Parser) primary() Expr {
@@ -55,7 +64,7 @@ func (p *Parser) primary() Expr {
 		return n
 	}
 
-	return p.num()
+	return p.factor()
 }
 
 func (p *Parser) unary() Expr {
@@ -148,6 +157,53 @@ func (p *Parser) expr() Expr {
 	return p.eq()
 }
 
-func (p *Parser) Parse() Node {
-	return p.expr()
+func (p *Parser) assign() *AssignStmt {
+	lhs := p.expr()
+	p.expect(ASSIGN)
+	rhs := p.expr()
+
+	return &AssignStmt{
+		Lhs: []Expr{lhs},
+		Rhs: []Expr{rhs},
+	}
+}
+
+func (p *Parser) decl() *DeclStmt {
+	ident := p.expr().(*Ident)
+	p.expect(ASSIGN)
+	return &DeclStmt{
+		Decl: &GenDecl{
+			Kind: VAR,
+			Specs: []Spec{
+				&ValueSpec{
+					Type:       NewInt(),
+					Names:      []*Ident{ident},
+					InitValues: []Expr{p.expr()},
+				},
+			},
+		},
+	}
+}
+
+func (p *Parser) stmt() Stmt {
+	if p.consume(RETURN) {
+		return &ReturnStmt{Exprs: []Expr{p.expr()}}
+	} else if p.consume(VAR) {
+		return p.decl()
+	}
+
+	panic("parse.go : invalid statement.")
+}
+
+func (p *Parser) Parse() *Ast {
+	var nodes []Node
+
+	for p.peek().Kind != EOF {
+		nodes = append(nodes, p.stmt())
+	}
+
+	return &Ast{
+		Nodes:   nodes,
+		Symbols: make(map[Ident]*Type),
+	}
 }

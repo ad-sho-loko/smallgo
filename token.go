@@ -32,6 +32,9 @@ const (
 	LEQ              // <=
 	GTR              // >
 	GEQ              // >=
+	VAR              // var
+	RETURN           // return
+	IDENT
 	EOF
 )
 
@@ -51,7 +54,15 @@ var tokenString = map[TokenKind]string{
 	LEQ:    "LEQ",
 	GTR:    "GTR",
 	GEQ:    "GTR",
+	VAR:    "VAR",
+	RETURN: "RETURN",
+	IDENT:  "IDENT",
 	EOF:    "EOF",
+}
+
+var keywords = map[string]TokenKind{
+	"var":    VAR,
+	"return": RETURN,
 }
 
 func (t TokenKind) String() string {
@@ -84,12 +95,31 @@ func (t *Tokenizer) isEof() bool {
 	return t.pos >= len(t.b)
 }
 
-func (t *Tokenizer) isNumeric() bool {
-	return t.b[t.pos] >= '0' && t.b[t.pos] <= '9'
+func (t *Tokenizer) isDigit(b byte) bool {
+	return b >= '0' && b <= '9'
+}
+
+func (t *Tokenizer) isKeyword(str string) bool {
+	_, found := keywords[str]
+	return found
+}
+
+func (t *Tokenizer) isIdentifer(str string) bool {
+	for i, ch := range []byte(str) {
+		if !t.isLetter(ch) && ch != '_' && (i == 0 && !t.isDigit(ch)) {
+			return false
+		}
+	}
+
+	return str != "" && !t.isKeyword(str)
+}
+
+func (t *Tokenizer) isLetter(ch byte) bool {
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
 }
 
 func (t *Tokenizer) isSpace() bool {
-	return t.peek() == ' ' || t.peek() == '\t'
+	return t.peek() == ' ' || t.peek() == '\t' || t.peek() == '\r'
 }
 
 func (t *Tokenizer) skipSpace() {
@@ -106,14 +136,33 @@ func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind {
 	return kind1
 }
 
-func (t *Tokenizer) readNumeric() string {
-	n := ""
+func (t *Tokenizer) readString() *Token {
+	s := ""
 
-	for ; !t.isEof() && t.isNumeric(); t.pos++ {
-		n += string(t.b[t.pos])
+	for ; !t.isEof() && t.isLetter(t.peek()); t.pos++ {
+		s += string(t.peek())
 	}
 
-	return n
+	if t.isKeyword(s) {
+		keyword := keywords[s]
+		return t.newToken(keyword, "")
+	}
+
+	if t.isIdentifer(s) {
+		return t.newToken(IDENT, s)
+	}
+
+	panic("token.go : invalid string")
+}
+
+func (t *Tokenizer) readNumeric() *Token {
+	n := ""
+
+	for ; !t.isEof() && t.isDigit(t.peek()); t.pos++ {
+		n += string(t.peek())
+	}
+
+	return t.newToken(NUMBER, n)
 }
 
 func (t *Tokenizer) Tokenize() []*Token {
@@ -126,9 +175,13 @@ func (t *Tokenizer) Tokenize() []*Token {
 			break
 		}
 
-		if t.isNumeric() {
-			n := t.readNumeric()
-			tokens = append(tokens, t.newToken(NUMBER, n))
+		if t.isLetter(t.peek()) {
+			tokens = append(tokens, t.readString())
+			continue
+		}
+
+		if t.isDigit(t.peek()) {
+			tokens = append(tokens, t.readNumeric())
 			continue
 		}
 

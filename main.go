@@ -18,9 +18,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	t := NewTokenizer([]byte(os.Args[1]))
-	tokens := t.Tokenize()
-	p := NewParser(tokens)
-	n := p.Parse()
-	Gen(n)
+	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
+	ast := NewParser(tokens).Parse()
+	WalkAst(ast)
+	Gen(ast)
 }

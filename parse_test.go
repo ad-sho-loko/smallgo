@@ -12,21 +12,27 @@ func walkAssert(t *testing.T, got, want Node) {
 		assert.True(t, ok)
 		assert.Equal(t, gotOp.Kind, n.Kind)
 		walkAssert(t, gotOp.Left, n.Left)
-		walkAssert(t, gotOp.Left, n.Left)
+		walkAssert(t, gotOp.Right, n.Right)
 	case *Lit:
 		gotLit, ok := got.(*Lit)
 		assert.True(t, ok)
 		assert.Equal(t, gotLit.Kind, n.Kind)
 		assert.Equal(t, gotLit.Val, n.Val)
+	case *ReturnStmt:
+		gotLit, ok := got.(*ReturnStmt)
+		assert.True(t, ok)
+		for i, e := range n.Exprs{
+			walkAssert(t, gotLit.Exprs[i], e)
+		}
 	default:
-		t.Fail()
+		t.Fatal("you need to add the types")
 	}
 }
 
 func TestParse_Add(t *testing.T) {
 	test := struct {
 		b    []*Token
-		want Node
+		want []Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "3"},
@@ -34,22 +40,24 @@ func TestParse_Add(t *testing.T) {
 			{Kind: NUMBER, Val: "2"},
 			{Kind: EOF, Val: ""},
 		},
-		want: &Binary{
-			Kind:  ADD,
-			Left:  &Lit{Kind: NUMBER, Val: "3"},
-			Right: &Lit{Kind: NUMBER, Val: "2"},
+		want: []Node{
+			&Binary{
+				Kind:  ADD,
+				Left:  &Lit{Kind: NUMBER, Val: "3"},
+				Right: &Lit{Kind: NUMBER, Val: "2"},
+			},
 		},
 	}
 
 	p := NewParser(test.b)
-	ast := p.Parse()
-	walkAssert(t, ast, test.want)
+	ast := p.expr()
+	walkAssert(t, ast, test.want[0])
 }
 
 func TestParse_AddPolynomial(t *testing.T) {
 	test := struct {
 		b    []*Token
-		want Node
+		want []Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "3"},
@@ -59,29 +67,31 @@ func TestParse_AddPolynomial(t *testing.T) {
 			{Kind: NUMBER, Val: "4"},
 			{Kind: EOF, Val: ""},
 		},
-		want: &Binary{
-			Kind: ADD,
-			Left: &Binary{
-				Kind:  ADD,
-				Left:  &Lit{Kind: NUMBER, Val: "3"},
-				Right: &Lit{Kind: NUMBER, Val: "2"},
-			},
-			Right: &Lit{
-				Kind: NUMBER,
-				Val:  "4",
+		want: []Node{
+			&Binary{
+				Kind: ADD,
+				Left: &Binary{
+					Kind:  ADD,
+					Left:  &Lit{Kind: NUMBER, Val: "3"},
+					Right: &Lit{Kind: NUMBER, Val: "2"},
+				},
+				Right: &Lit{
+					Kind: NUMBER,
+					Val:  "4",
+				},
 			},
 		},
 	}
 
 	p := NewParser(test.b)
-	ast := p.Parse()
-	walkAssert(t, ast, test.want)
+	ast := p.expr()
+	walkAssert(t, ast, test.want[0])
 }
 
 func TestParse_Mul(t *testing.T) {
 	test := struct {
 		b    []*Token
-		want Node
+		want []Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "3"},
@@ -89,22 +99,24 @@ func TestParse_Mul(t *testing.T) {
 			{Kind: NUMBER, Val: "2"},
 			{Kind: EOF, Val: ""},
 		},
-		want: &Binary{
-			Kind:  MUL,
-			Left:  &Lit{Kind: NUMBER, Val: "3"},
-			Right: &Lit{Kind: NUMBER, Val: "2"},
+		want: []Node{
+			&Binary{
+				Kind:  MUL,
+				Left:  &Lit{Kind: NUMBER, Val: "3"},
+				Right: &Lit{Kind: NUMBER, Val: "2"},
+			},
 		},
 	}
 
 	p := NewParser(test.b)
-	ast := p.Parse()
-	walkAssert(t, ast, test.want)
+	ast := p.expr()
+	walkAssert(t, ast, test.want[0])
 }
 
 func TestParse_Precedence(t *testing.T) {
 	test := struct {
 		b    []*Token
-		want Node
+		want []Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "2"},
@@ -114,26 +126,28 @@ func TestParse_Precedence(t *testing.T) {
 			{Kind: NUMBER, Val: "4"},
 			{Kind: EOF, Val: ""},
 		},
-		want: &Binary{
-			Kind: ADD,
-			Left: &Lit{Kind: NUMBER, Val: "2"},
-			Right: &Binary{
-				Kind:  MUL,
-				Left:  &Lit{Kind: NUMBER, Val: "3"},
-				Right: &Lit{Kind: NUMBER, Val: "4"},
+		want: []Node{
+			&Binary{
+				Kind: ADD,
+				Left: &Lit{Kind: NUMBER, Val: "2"},
+				Right: &Binary{
+					Kind:  MUL,
+					Left:  &Lit{Kind: NUMBER, Val: "3"},
+					Right: &Lit{Kind: NUMBER, Val: "4"},
+				},
 			},
 		},
 	}
 
 	p := NewParser(test.b)
-	ast := p.Parse()
-	walkAssert(t, ast, test.want)
+	ast := p.expr()
+	walkAssert(t, ast, test.want[0])
 }
 
 func TestParse_Paren(t *testing.T) {
 	test := struct {
 		b    []*Token
-		want Node
+		want []Node
 	}{
 		b: []*Token{
 			{Kind: NUMBER, Val: "2"},
@@ -145,18 +159,44 @@ func TestParse_Paren(t *testing.T) {
 			{Kind: RPAREN, Val: ""},
 			{Kind: EOF, Val: ""},
 		},
-		want: &Binary{
-			Kind: MUL,
-			Left: &Lit{Kind: NUMBER, Val: "2"},
-			Right: &Binary{
-				Kind:  ADD,
-				Left:  &Lit{Kind: NUMBER, Val: "3"},
-				Right: &Lit{Kind: NUMBER, Val: "4"},
+		want: []Node{
+			&Binary{
+				Kind: MUL,
+				Left: &Lit{Kind: NUMBER, Val: "2"},
+				Right: &Binary{
+					Kind:  ADD,
+					Left:  &Lit{Kind: NUMBER, Val: "3"},
+					Right: &Lit{Kind: NUMBER, Val: "4"},
+				},
 			},
 		},
 	}
 
 	p := NewParser(test.b)
-	ast := p.Parse()
-	walkAssert(t, ast, test.want)
+	ast := p.expr()
+	walkAssert(t, ast, test.want[0])
+}
+
+func TestParse_ReturnStmt(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want []Node
+	}{
+		b: []*Token{
+			{Kind: RETURN, Val: "2"},
+			{Kind: NUMBER, Val: "5"},
+			{Kind: EOF, Val: ""},
+		},
+		want: []Node{
+			&ReturnStmt{
+				Exprs:[]Expr{
+					&Lit{Kind: NUMBER, Val: "5"},
+				},
+			},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.stmt()
+	walkAssert(t, ast, test.want[0])
 }

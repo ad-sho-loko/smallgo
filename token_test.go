@@ -23,6 +23,25 @@ func TestTokenize_Numeric(t *testing.T) {
 	}
 }
 
+func TestTokenize_String(t *testing.T) {
+	tests := []struct {
+		b    []byte
+		want Token
+	}{
+		{[]byte("var"), Token{Kind: VAR, Val: ""}},
+		{[]byte("return"), Token{Kind: RETURN, Val: ""}},
+		{[]byte("x"), Token{Kind: IDENT, Val: "x"}},
+		// {[]byte("_abc"), Token{Kind: IDENT, Val: "_abc"}},
+		// {[]byte("a_b_c_"), Token{Kind: IDENT, Val: "_abc"}},
+	}
+
+	for _, tt := range tests {
+		tk := NewTokenizer(tt.b)
+		got := tk.Tokenize()
+		assert.Equal(t, tt.want, *got[0])
+	}
+}
+
 func TestTokenize_Operator(t *testing.T) {
 	tests := []struct {
 		b    []byte
@@ -61,5 +80,50 @@ func TestTokenize_Special(t *testing.T) {
 		tk := NewTokenizer(tt.b)
 		got := tk.Tokenize()
 		assert.Equal(t, tt.want, *got[0])
+	}
+}
+
+func TestTokenize_Calc(t *testing.T) {
+	tests := struct {
+		b    []byte
+		want []*Token
+	}{
+		[]byte("1+2*3"),
+		[]*Token{
+			{Kind: NUMBER, Val: "1"},
+			{Kind: ADD, Val: ""},
+			{Kind: NUMBER, Val: "2"},
+			{Kind: MUL, Val: ""},
+			{Kind: NUMBER, Val: "3"},
+			{Kind: EOF, Val: ""},
+		},
+	}
+
+	tk := NewTokenizer(tests.b)
+	got := tk.Tokenize()
+
+	for i, want := range tests.want{
+		assert.Equal(t, want, got[i])
+	}
+}
+
+func TestTokenize_ReturnStmt(t *testing.T) {
+	tests := struct {
+		b    []byte
+		want []*Token
+	}{
+		[]byte("return 5"),
+		[]*Token{
+			{Kind: RETURN, Val: ""},
+			{Kind: NUMBER, Val: "5"},
+			{Kind: EOF, Val: ""},
+		},
+	}
+
+	tk := NewTokenizer(tests.b)
+	got := tk.Tokenize()
+
+	for i, want := range tests.want{
+		assert.Equal(t, want, got[i])
 	}
 }
