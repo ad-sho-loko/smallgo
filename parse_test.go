@@ -32,6 +32,7 @@ func TestAdd(t *testing.T) {
 			{Kind: NUMBER, Val: "3"},
 			{Kind: ADD, Val: ""},
 			{Kind: NUMBER, Val: "2"},
+			{Kind:EOF, Val:""},
 		},
 		want: &Op{
 			Kind:  ADD,
@@ -45,6 +46,39 @@ func TestAdd(t *testing.T) {
 	walkAssert(t, ast, test.want)
 }
 
+func TestAddPolynomial(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want Node
+	}{
+		b: []*Token{
+			{Kind: NUMBER, Val: "3"},
+			{Kind: ADD, Val: ""},
+			{Kind: NUMBER, Val: "2"},
+			{Kind: ADD, Val: ""},
+			{Kind: NUMBER, Val: "4"},
+			{Kind:EOF, Val:""},
+		},
+		want: &Op{
+			Kind:ADD,
+			Left:&Op{
+				Kind:  ADD,
+				Left:  &Lit{Kind: NUMBER, Val: "3"},
+				Right: &Lit{Kind: NUMBER, Val: "2"},
+			},
+			Right:&Lit{
+				Kind:NUMBER,
+				Val:"4",
+			},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.Parse()
+	walkAssert(t, ast, test.want)
+}
+
+
 func TestSub(t *testing.T) {
 	test := struct {
 		b    []*Token
@@ -54,6 +88,7 @@ func TestSub(t *testing.T) {
 			{Kind: NUMBER, Val: "3"},
 			{Kind: SUB, Val: ""},
 			{Kind: NUMBER, Val: "2"},
+			{Kind:EOF, Val:""},
 		},
 		want: &Op{
 			Kind:  SUB,

@@ -50,18 +50,19 @@ func (p *Parser) num() Expr {
 
 func (p *Parser) add() Node {
 	n := p.num()
-
-	if p.consume(ADD) {
-		left := n.(*Lit)
-		right := p.num().(*Lit)
-		n = &Op{Kind: ADD, Left: left, Right: right}
-	} else if p.consume(SUB) {
-		left := n.(*Lit)
-		right := p.num().(*Lit)
-		n = &Op{Kind: SUB, Left: left, Right: right}
+	for ;;{
+		if p.consume(ADD) {
+			left := n.(Expr)
+			right := p.num().(Expr)
+			n = &Op{Kind: ADD, Left: left, Right: right}
+		} else if p.consume(SUB) {
+			left := n.(Expr)
+			right := p.num().(Expr)
+			n = &Op{Kind: SUB, Left: left, Right: right}
+		} else{
+			return n
+		}
 	}
-
-	return n
 }
 
 func (p *Parser) Parse() Node {
