@@ -32,7 +32,7 @@ func TestParse_Add(t *testing.T) {
 			{Kind: NUMBER, Val: "3"},
 			{Kind: ADD, Val: ""},
 			{Kind: NUMBER, Val: "2"},
-			{Kind:EOF, Val:""},
+			{Kind: EOF, Val: ""},
 		},
 		want: &Binary{
 			Kind:  ADD,
@@ -57,18 +57,18 @@ func TestParse_AddPolynomial(t *testing.T) {
 			{Kind: NUMBER, Val: "2"},
 			{Kind: ADD, Val: ""},
 			{Kind: NUMBER, Val: "4"},
-			{Kind:EOF, Val:""},
+			{Kind: EOF, Val: ""},
 		},
 		want: &Binary{
-			Kind:ADD,
-			Left:&Binary{
+			Kind: ADD,
+			Left: &Binary{
 				Kind:  ADD,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
 				Right: &Lit{Kind: NUMBER, Val: "2"},
 			},
-			Right:&Lit{
-				Kind:NUMBER,
-				Val:"4",
+			Right: &Lit{
+				Kind: NUMBER,
+				Val:  "4",
 			},
 		},
 	}
@@ -77,7 +77,6 @@ func TestParse_AddPolynomial(t *testing.T) {
 	ast := p.Parse()
 	walkAssert(t, ast, test.want)
 }
-
 
 func TestParse_Mul(t *testing.T) {
 	test := struct {
@@ -88,7 +87,7 @@ func TestParse_Mul(t *testing.T) {
 			{Kind: NUMBER, Val: "3"},
 			{Kind: MUL, Val: ""},
 			{Kind: NUMBER, Val: "2"},
-			{Kind:EOF, Val:""},
+			{Kind: EOF, Val: ""},
 		},
 		want: &Binary{
 			Kind:  MUL,
@@ -113,15 +112,15 @@ func TestParse_Precedence(t *testing.T) {
 			{Kind: NUMBER, Val: "3"},
 			{Kind: MUL, Val: ""},
 			{Kind: NUMBER, Val: "4"},
-			{Kind:EOF, Val:""},
+			{Kind: EOF, Val: ""},
 		},
 		want: &Binary{
-			Kind:  ADD,
-			Left:  &Lit{Kind: NUMBER, Val: "2"},
+			Kind: ADD,
+			Left: &Lit{Kind: NUMBER, Val: "2"},
 			Right: &Binary{
-				Kind:MUL,
+				Kind:  MUL,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
-				Right:  &Lit{Kind: NUMBER, Val: "4"},
+				Right: &Lit{Kind: NUMBER, Val: "4"},
 			},
 		},
 	}
@@ -130,7 +129,6 @@ func TestParse_Precedence(t *testing.T) {
 	ast := p.Parse()
 	walkAssert(t, ast, test.want)
 }
-
 
 func TestParse_Paren(t *testing.T) {
 	test := struct {
@@ -145,15 +143,15 @@ func TestParse_Paren(t *testing.T) {
 			{Kind: ADD, Val: ""},
 			{Kind: NUMBER, Val: "4"},
 			{Kind: RPAREN, Val: ""},
-			{Kind:EOF, Val:""},
+			{Kind: EOF, Val: ""},
 		},
 		want: &Binary{
-			Kind:  MUL,
-			Left:  &Lit{Kind: NUMBER, Val: "2"},
+			Kind: MUL,
+			Left: &Lit{Kind: NUMBER, Val: "2"},
 			Right: &Binary{
-				Kind:ADD,
+				Kind:  ADD,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
-				Right:  &Lit{Kind: NUMBER, Val: "4"},
+				Right: &Lit{Kind: NUMBER, Val: "4"},
 			},
 		},
 	}

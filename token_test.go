@@ -12,7 +12,7 @@ func TestTokenize_Numeric(t *testing.T) {
 	}{
 		{[]byte("0"), Token{Kind: NUMBER, Val: "0"}},
 		{[]byte("123456789"), Token{Kind: NUMBER, Val: "123456789"}},
-		{[]byte("-123"), Token{Kind:SUB, Val:""}},
+		{[]byte("-123"), Token{Kind: SUB, Val: ""}},
 		// {[]byte("int.Max"), Token{Kind:NUMBER, Val:"123"}},
 	}
 
@@ -36,6 +36,10 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 		{[]byte("=="), Token{Kind: EQL, Val: ""}},
 		{[]byte("!="), Token{Kind: NEQ, Val: ""}},
+		{[]byte("<"), Token{Kind: LSS, Val: ""}},
+		{[]byte("<="), Token{Kind: LEQ, Val: ""}},
+		{[]byte(">"), Token{Kind: GTR, Val: ""}},
+		{[]byte(">="), Token{Kind: GEQ, Val: ""}},
 	}
 
 	for _, tt := range tests {

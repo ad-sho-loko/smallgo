@@ -18,16 +18,20 @@ type TokenKind uint
 
 const (
 	NUMBER TokenKind = iota + 1
-	ADD
-	SUB
-	MUL
-	DIV
-	LPAREN
-	RPAREN
-	ASSIGN
-	EQL
-	NEQ
-	NOT
+	ADD              // +
+	SUB              // -
+	MUL              // *
+	DIV              // /
+	LPAREN           // (
+	RPAREN           // )
+	ASSIGN           // =
+	EQL              // ==
+	NEQ              // !=
+	NOT              // !
+	LSS              // <
+	LEQ              // <=
+	GTR              // >
+	GEQ              // >=
 	EOF
 )
 
@@ -43,6 +47,10 @@ var tokenString = map[TokenKind]string{
 	EQL:    "EQL",
 	NEQ:    "NEQ",
 	NOT:    "NOT",
+	LSS:    "LSS",
+	LEQ:    "LEQ",
+	GTR:    "GTR",
+	GEQ:    "GTR",
 	EOF:    "EOF",
 }
 
@@ -89,8 +97,9 @@ func (t *Tokenizer) skipSpace() {
 	}
 }
 
-func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind{
-	if t.peek() == '='{
+func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind {
+	if !t.isEof() && t.peek() == '=' {
+		t.pos++
 		return kind2
 	}
 
@@ -147,6 +156,14 @@ func (t *Tokenizer) Tokenize() []*Token {
 			kind := t.switch2(ASSIGN, EQL)
 			tokens = append(tokens, t.newToken(kind, ""))
 			t.pos++
+		case '<':
+			t.pos++
+			kind := t.switch2(LSS, LEQ)
+			tokens = append(tokens, t.newToken(kind, ""))
+		case '>':
+			t.pos++
+			kind := t.switch2(GTR, GEQ)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '!':
 			t.pos++
 			kind := t.switch2(NOT, NEQ)

@@ -48,8 +48,8 @@ func (p *Parser) num() Expr {
 	return &Lit{Kind: tkn.Kind, Val: tkn.Val}
 }
 
-func (p *Parser) primary() Expr{
-	if p.consume(LPAREN){
+func (p *Parser) primary() Expr {
+	if p.consume(LPAREN) {
 		n := p.expr()
 		p.expect(RPAREN)
 		return n
@@ -61,16 +61,16 @@ func (p *Parser) primary() Expr{
 func (p *Parser) unary() Expr {
 	if p.consume(ADD) {
 	} else if p.consume(SUB) {
-		return &Binary{Kind:SUB, Left:&Lit{Kind:NUMBER, Val:"0"}, Right:p.primary()}
+		return &Binary{Kind: SUB, Left: &Lit{Kind: NUMBER, Val: "0"}, Right: p.primary()}
 	}
 
 	return p.primary()
 }
 
-func (p *Parser) mul() Expr{
+func (p *Parser) mul() Expr {
 	n := p.unary()
 
-	for ;;{
+	for {
 		if p.consume(MUL) {
 			left := n.(Expr)
 			right := p.unary().(Expr)
@@ -79,15 +79,15 @@ func (p *Parser) mul() Expr{
 			left := n.(Expr)
 			right := p.unary().(Expr)
 			n = &Binary{Kind: DIV, Left: left, Right: right}
-		} else{
+		} else {
 			return n
 		}
 	}
 }
 
-func (p *Parser) add() Expr{
+func (p *Parser) add() Expr {
 	n := p.mul()
-	for ;;{
+	for {
 		if p.consume(ADD) {
 			left := n.(Expr)
 			right := p.mul().(Expr)
@@ -96,22 +96,47 @@ func (p *Parser) add() Expr{
 			left := n.(Expr)
 			right := p.mul().(Expr)
 			n = &Binary{Kind: SUB, Left: left, Right: right}
-		} else{
+		} else {
+			return n
+		}
+	}
+}
+
+func (p *Parser) rel() Expr {
+	n := p.add()
+	for {
+		if p.consume(LSS) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Binary{Kind: LSS, Left: left, Right: right}
+		} else if p.consume(GTR) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Binary{Kind: GTR, Left: left, Right: right}
+		} else if p.consume(GEQ) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Binary{Kind: GEQ, Left: left, Right: right}
+		} else if p.consume(LEQ) {
+			left := n.(Expr)
+			right := p.add().(Expr)
+			n = &Binary{Kind: LEQ, Left: left, Right: right}
+		} else {
 			return n
 		}
 	}
 }
 
 func (p *Parser) eq() Expr {
-	n := p.add()
-	for ;; {
+	n := p.rel()
+	for {
 		if p.consume(EQL) {
 			left := n.(Expr)
-			right := p.mul().(Expr)
+			right := p.rel().(Expr)
 			n = &Binary{Kind: EQL, Left: left, Right: right}
-		}else if p.consume(NEQ){
+		} else if p.consume(NEQ) {
 			left := n.(Expr)
-			right := p.mul().(Expr)
+			right := p.rel().(Expr)
 			n = &Binary{Kind: NEQ, Left: left, Right: right}
 		} else {
 			return n

@@ -34,6 +34,22 @@ func gen(n Node) {
 			emit("cmp rax, rdi")
 			emit("setne al")
 			emit("movzb rax, al")
+		case GTR:
+			emit("cmp rax, rdi")
+			emit("setg al")
+			emit("movzb rax, al")
+		case GEQ:
+			emit("cmp rax, rdi")
+			emit("setge al")
+			emit("movzb rax, al")
+		case LSS:
+			emit("cmp rax, rdi")
+			emit("setl al")
+			emit("movzb rax, al")
+		case LEQ:
+			emit("cmp rax, rdi")
+			emit("setle al")
+			emit("movzb rax, al")
 		}
 		emit("push rax")
 	default:
