@@ -6,11 +6,11 @@ func emit(s string) {
 	fmt.Println("  " + s)
 }
 
-func lgen(ast *Ast, n Node){
+func lgen(ast *Ast, n Node) {
 	switch v := n.(type) {
 	case *Ident:
 		emit("mov rax, rbp")
-		fmt.Printf("  sub rax, %d\n", ast.Symbols[*v].Size)
+		fmt.Printf("  sub rax, %d\n", ast.Symbols[*v].Offset)
 		emit("push rax")
 	}
 }

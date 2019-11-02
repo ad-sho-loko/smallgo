@@ -38,6 +38,7 @@ try 1 'return 2 <= 2'
 try 0 'return 3 <= 2'
 try 1 'return 1+2 > 1*1'
 try 7 'var x = 7 return x'
+try 15 'var x = 5 var y = 10 return x+y'
 # try 7 'var x int x = 7 return x'
 
 echo OK

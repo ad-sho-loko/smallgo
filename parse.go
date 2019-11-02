@@ -204,6 +204,6 @@ func (p *Parser) Parse() *Ast {
 
 	return &Ast{
 		Nodes:   nodes,
-		Symbols: make(map[Ident]*Type),
+		Symbols: make(map[Ident]*Symbol),
 	}
 }

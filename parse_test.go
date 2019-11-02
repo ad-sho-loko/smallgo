@@ -21,7 +21,7 @@ func walkAssert(t *testing.T, got, want Node) {
 	case *ReturnStmt:
 		gotLit, ok := got.(*ReturnStmt)
 		assert.True(t, ok)
-		for i, e := range n.Exprs{
+		for i, e := range n.Exprs {
 			walkAssert(t, gotLit.Exprs[i], e)
 		}
 	default:
@@ -189,7 +189,7 @@ func TestParse_ReturnStmt(t *testing.T) {
 		},
 		want: []Node{
 			&ReturnStmt{
-				Exprs:[]Expr{
+				Exprs: []Expr{
 					&Lit{Kind: NUMBER, Val: "5"},
 				},
 			},

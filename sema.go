@@ -18,7 +18,10 @@ func walkNode(ast *Ast, n Node) {
 
 	case *ValueSpec:
 		for _, ident := range typ.Names {
-			ast.Symbols[*ident] = typ.Type
+			ast.Symbols[*ident] = &Symbol{
+				Type:   typ.Type,
+				Offset: typ.Type.Size + ast.FrameSize(),
+			}
 		}
 		walkIdentList(ast, typ.Names)
 		walkNode(ast, typ.InitValues)

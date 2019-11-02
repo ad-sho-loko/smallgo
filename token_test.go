@@ -102,7 +102,7 @@ func TestTokenize_Calc(t *testing.T) {
 	tk := NewTokenizer(tests.b)
 	got := tk.Tokenize()
 
-	for i, want := range tests.want{
+	for i, want := range tests.want {
 		assert.Equal(t, want, got[i])
 	}
 }
@@ -123,7 +123,7 @@ func TestTokenize_ReturnStmt(t *testing.T) {
 	tk := NewTokenizer(tests.b)
 	got := tk.Tokenize()
 
-	for i, want := range tests.want{
+	for i, want := range tests.want {
 		assert.Equal(t, want, got[i])
 	}
 }
