@@ -17,39 +17,48 @@ type Token struct {
 type TokenKind uint
 
 const (
-	NUMBER TokenKind = iota + 1
-	ADD              // +
-	SUB              // -
-	MUL              // *
-	DIV              // /
-	MOD              // %
-	LPAREN           // (
-	RPAREN           // )
-	ASSIGN           // =
-	EQL              // ==
-	NEQ              // !=
-	NOT              // !
-	LSS              // <
-	LEQ              // <=
-	GTR              // >
-	GEQ              // >=
-	VAR              // var
-	RETURN           // return
+	NUMBER     TokenKind = iota + 1
+	ADD                  // +
+	SUB                  // -
+	MUL                  // *
+	DIV                  // /
+	MOD                  // %
+	LPAREN               // (
+	RPAREN               // )
+	ASSIGN               // =
+	EQL                  // ==
+	SHL                  // <<
+	SHL_ASSIGN           // <<=
+	SHR                  // >>
+	SHR_ASSIGN           // >>=
+	NEQ                  // !=
+	NOT                  // !
+	LSS                  // <
+	LEQ                  // <=
+	GTR                  // >
+	GEQ                  // >=
+	VAR                  // var
+	RETURN               // return
 	IDENT
 	EOF
 )
 
 var tokenString = map[TokenKind]string{
-	NUMBER: "NUMBER",
-	ADD:    "ADD",
-	SUB:    "SUB",
-	MUL:    "MUL",
-	DIV:    "DIV",
-	MOD:    "MOD",
-	LPAREN: "LPAREN",
-	RPAREN: "RPAREN",
-	ASSIGN: "ASSIGN",
-	EQL:    "EQL",
+	NUMBER:     "NUMBER",
+	ADD:        "ADD",
+	SUB:        "SUB",
+	MUL:        "MUL",
+	DIV:        "DIV",
+	MOD:        "MOD",
+	LPAREN:     "LPAREN",
+	RPAREN:     "RPAREN",
+	ASSIGN:     "ASSIGN",
+	EQL:        "EQL",
+	SHL:        "SHL",
+	SHL_ASSIGN: "SHL_ASSIGN",
+	SHR:        "SHR",
+	SHR_ASSIGN: "SHR_ASSIGN",
+
 	NEQ:    "NEQ",
 	NOT:    "NOT",
 	LSS:    "LSS",
@@ -138,6 +147,29 @@ func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind {
 	return kind1
 }
 
+func (t *Tokenizer) switch4(ch byte, kind1, kind2, kind3, kind4 TokenKind) TokenKind {
+	if t.isEof() {
+		return kind1
+	}
+
+	if t.peek() == '=' {
+		t.pos++
+		return kind2
+	}
+
+	if t.peek() == ch {
+		t.pos++
+		if !t.isEof() && t.peek() == '=' {
+
+			t.pos++
+			return kind4
+		}
+		return kind3
+	}
+
+	return kind1
+}
+
 func (t *Tokenizer) readString() *Token {
 	s := ""
 
@@ -216,11 +248,11 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case '<':
 			t.pos++
-			kind := t.switch2(LSS, LEQ)
+			kind := t.switch4('<', LSS, LEQ, SHL, SHL_ASSIGN)
 			tokens = append(tokens, t.newToken(kind, ""))
 		case '>':
 			t.pos++
-			kind := t.switch2(GTR, GEQ)
+			kind := t.switch4('>', GTR, GEQ, SHR, SHR_ASSIGN)
 			tokens = append(tokens, t.newToken(kind, ""))
 		case '!':
 			t.pos++

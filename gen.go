@@ -94,6 +94,9 @@ func gen(ast *Ast, n Node) {
 			emit("cmp rax, rdi")
 			emit("setge al")
 			emit("movzb rax, al")
+		case SHR:
+			emit("mov cl, dil")
+			emit("shr rax, cl")
 		case LSS:
 			emit("cmp rax, rdi")
 			emit("setl al")
@@ -102,6 +105,9 @@ func gen(ast *Ast, n Node) {
 			emit("cmp rax, rdi")
 			emit("setle al")
 			emit("movzb rax, al")
+		case SHL:
+			emit("mov cl, dil")
+			emit("shl rax, cl")
 		}
 		emit("push rax")
 	default:

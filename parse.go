@@ -92,6 +92,14 @@ func (p *Parser) mul() Expr {
 			left := n.(Expr)
 			right := p.unary().(Expr)
 			n = &Binary{Kind: MOD, Left: left, Right: right}
+		} else if p.consume(SHL) {
+			left := n.(Expr)
+			right := p.unary().(Expr)
+			n = &Binary{Kind: SHL, Left: left, Right: right}
+		} else if p.consume(SHR) {
+			left := n.(Expr)
+			right := p.unary().(Expr)
+			n = &Binary{Kind: SHR, Left: left, Right: right}
 		} else {
 			return n
 		}

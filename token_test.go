@@ -51,14 +51,19 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte("-"), Token{Kind: SUB, Val: ""}},
 		{[]byte("*"), Token{Kind: MUL, Val: ""}},
 		{[]byte("/"), Token{Kind: DIV, Val: ""}},
+		{[]byte("%"), Token{Kind: MOD, Val: ""}},
 		{[]byte("("), Token{Kind: LPAREN, Val: ""}},
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 		{[]byte("=="), Token{Kind: EQL, Val: ""}},
 		{[]byte("!="), Token{Kind: NEQ, Val: ""}},
 		{[]byte("<"), Token{Kind: LSS, Val: ""}},
 		{[]byte("<="), Token{Kind: LEQ, Val: ""}},
+		{[]byte("<<"), Token{Kind: SHL, Val: ""}},
+		{[]byte("<<="), Token{Kind: SHL_ASSIGN, Val: ""}},
 		{[]byte(">"), Token{Kind: GTR, Val: ""}},
 		{[]byte(">="), Token{Kind: GEQ, Val: ""}},
+		{[]byte(">>"), Token{Kind: SHR, Val: ""}},
+		{[]byte(">>="), Token{Kind: SHR_ASSIGN, Val: ""}},
 	}
 
 	for _, tt := range tests {
