@@ -6,13 +6,13 @@ func emit(s string) {
 	fmt.Println("  " + s)
 }
 
-func top(n Node) {
+func gen(n Node) {
 	switch v := n.(type) {
 	case *Lit:
 		fmt.Printf("  push %s\n", v.Val)
-	case *Op:
-		top(v.Left)
-		top(v.Right)
+	case *Binary:
+		gen(v.Left)
+		gen(v.Right)
 
 		emit("pop rdi")
 		emit("pop rax")
@@ -37,7 +37,7 @@ func Gen(n Node) {
 	fmt.Println(".global main")
 	fmt.Println()
 	fmt.Println("main:")
-	top(n)
+	gen(n)
 	emit("pop rax")
 	emit("ret")
 }

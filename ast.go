@@ -14,12 +14,12 @@ type (
 		Val  string
 	}
 
-	Op struct {
+	Binary struct {
 		Kind  TokenKind
 		Left  Expr
 		Right Expr
 	}
 )
 
-func (l *Lit) exprNode() {}
-func (o *Op) exprNode()  {}
+func (l *Lit) exprNode()    {}
+func (o *Binary) exprNode() {}

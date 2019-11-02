@@ -7,8 +7,8 @@ import (
 
 func walkAssert(t *testing.T, got, want Node) {
 	switch n := want.(type) {
-	case *Op:
-		gotOp, ok := got.(*Op)
+	case *Binary:
+		gotOp, ok := got.(*Binary)
 		assert.True(t, ok)
 		assert.Equal(t, gotOp.Kind, n.Kind)
 		walkAssert(t, gotOp.Left, n.Left)
@@ -34,7 +34,7 @@ func TestParse_Add(t *testing.T) {
 			{Kind: NUMBER, Val: "2"},
 			{Kind:EOF, Val:""},
 		},
-		want: &Op{
+		want: &Binary{
 			Kind:  ADD,
 			Left:  &Lit{Kind: NUMBER, Val: "3"},
 			Right: &Lit{Kind: NUMBER, Val: "2"},
@@ -59,9 +59,9 @@ func TestParse_AddPolynomial(t *testing.T) {
 			{Kind: NUMBER, Val: "4"},
 			{Kind:EOF, Val:""},
 		},
-		want: &Op{
+		want: &Binary{
 			Kind:ADD,
-			Left:&Op{
+			Left:&Binary{
 				Kind:  ADD,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
 				Right: &Lit{Kind: NUMBER, Val: "2"},
@@ -90,7 +90,7 @@ func TestParse_Mul(t *testing.T) {
 			{Kind: NUMBER, Val: "2"},
 			{Kind:EOF, Val:""},
 		},
-		want: &Op{
+		want: &Binary{
 			Kind:  MUL,
 			Left:  &Lit{Kind: NUMBER, Val: "3"},
 			Right: &Lit{Kind: NUMBER, Val: "2"},
@@ -115,10 +115,10 @@ func TestParse_Precedence(t *testing.T) {
 			{Kind: NUMBER, Val: "4"},
 			{Kind:EOF, Val:""},
 		},
-		want: &Op{
+		want: &Binary{
 			Kind:  ADD,
 			Left:  &Lit{Kind: NUMBER, Val: "2"},
-			Right: &Op{
+			Right: &Binary{
 				Kind:MUL,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
 				Right:  &Lit{Kind: NUMBER, Val: "4"},
@@ -147,10 +147,10 @@ func TestParse_Paren(t *testing.T) {
 			{Kind: RPAREN, Val: ""},
 			{Kind:EOF, Val:""},
 		},
-		want: &Op{
+		want: &Binary{
 			Kind:  MUL,
 			Left:  &Lit{Kind: NUMBER, Val: "2"},
-			Right: &Op{
+			Right: &Binary{
 				Kind:ADD,
 				Left:  &Lit{Kind: NUMBER, Val: "3"},
 				Right:  &Lit{Kind: NUMBER, Val: "4"},

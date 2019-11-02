@@ -12,7 +12,7 @@ func TestTokenize_Numeric(t *testing.T) {
 	}{
 		{[]byte("0"), Token{Kind: NUMBER, Val: "0"}},
 		{[]byte("123456789"), Token{Kind: NUMBER, Val: "123456789"}},
-		// {[]byte("-123"), Token{Kind:NUMBER, Val:"123"}},
+		{[]byte("-123"), Token{Kind:SUB, Val:""}},
 		// {[]byte("int.Max"), Token{Kind:NUMBER, Val:"123"}},
 	}
 

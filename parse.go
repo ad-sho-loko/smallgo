@@ -48,9 +48,9 @@ func (p *Parser) num() Expr {
 	return &Lit{Kind: tkn.Kind, Val: tkn.Val}
 }
 
-func (p *Parser) primary() Node{
+func (p *Parser) primary() Expr{
 	if p.consume(LPAREN){
-		n := p.add()
+		n := p.expr()
 		p.expect(RPAREN)
 		return n
 	}
@@ -58,34 +58,44 @@ func (p *Parser) primary() Node{
 	return p.num()
 }
 
-func (p *Parser) mul() Node{
-	n := p.primary()
+func (p *Parser) unary() Expr {
+	if p.consume(ADD) {
+	} else if p.consume(SUB) {
+		return &Binary{Kind:SUB, Left:&Lit{Kind:NUMBER, Val:"0"}, Right:p.primary()}
+	}
+
+	return p.primary()
+}
+
+func (p *Parser) mul() Expr{
+	n := p.unary()
+
 	for ;;{
 		if p.consume(MUL) {
 			left := n.(Expr)
-			right := p.primary().(Expr)
-			n = &Op{Kind: MUL, Left: left, Right: right}
+			right := p.unary().(Expr)
+			n = &Binary{Kind: MUL, Left: left, Right: right}
 		} else if p.consume(DIV) {
 			left := n.(Expr)
-			right := p.primary().(Expr)
-			n = &Op{Kind: DIV, Left: left, Right: right}
+			right := p.unary().(Expr)
+			n = &Binary{Kind: DIV, Left: left, Right: right}
 		} else{
 			return n
 		}
 	}
 }
 
-func (p *Parser) add() Node {
+func (p *Parser) expr() Expr {
 	n := p.mul()
 	for ;;{
 		if p.consume(ADD) {
 			left := n.(Expr)
 			right := p.mul().(Expr)
-			n = &Op{Kind: ADD, Left: left, Right: right}
+			n = &Binary{Kind: ADD, Left: left, Right: right}
 		} else if p.consume(SUB) {
 			left := n.(Expr)
 			right := p.mul().(Expr)
-			n = &Op{Kind: SUB, Left: left, Right: right}
+			n = &Binary{Kind: SUB, Left: left, Right: right}
 		} else{
 			return n
 		}
@@ -93,5 +103,5 @@ func (p *Parser) add() Node {
 }
 
 func (p *Parser) Parse() Node {
-	return p.add()
+	return p.expr()
 }
