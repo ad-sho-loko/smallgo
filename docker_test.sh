@@ -5,7 +5,6 @@
 
 # push the image to docker.io
 # docker push adsholoko/smallgo:latest
-
 # run docker locally
 set -u
 docker run \

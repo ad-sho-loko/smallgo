@@ -2,6 +2,9 @@ smallgo: main.go
 	go build -o smallgo *.go
 
 test: smallgo
+	./test.sh
+
+test_all : smallgo
 	go test ./...
 	./test.sh
 

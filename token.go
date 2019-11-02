@@ -16,13 +16,15 @@ type TokenKind uint
 
 const (
 	NUMBER TokenKind = iota + 1
-	PLUS
+	ADD
+	SUB
 	EOF
 )
 
 var tokenString = map[TokenKind]string{
 	NUMBER: "NUMBER",
-	PLUS:   "PLUS",
+	ADD:    "ADD",
+	SUB:    "SUB",
 	EOF:    "EOF",
 }
 
@@ -48,7 +50,7 @@ func (t *Tokenizer) newToken(kind TokenKind, val string) *Token {
 	}
 }
 
-func (t *Tokenizer) now() byte {
+func (t *Tokenizer) peek() byte {
 	return t.b[t.pos]
 }
 
@@ -61,7 +63,7 @@ func (t *Tokenizer) isNumeric() bool {
 }
 
 func (t *Tokenizer) isSpace() bool {
-	return t.now() == ' ' || t.now() == '\t'
+	return t.peek() == ' ' || t.peek() == '\t'
 }
 
 func (t *Tokenizer) skipSpace() {
@@ -89,19 +91,23 @@ func (t *Tokenizer) Tokenize() []*Token {
 			break
 		}
 
-		if t.now() == '+' {
-			tokens = append(tokens, t.newToken(PLUS, ""))
-			t.pos++
-			continue
-		}
-
 		if t.isNumeric() {
 			n := t.readNumeric()
 			tokens = append(tokens, t.newToken(NUMBER, n))
 			continue
 		}
 
-		panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.now()), t.now()))
+		switch t.peek() {
+		case '+':
+			tokens = append(tokens, t.newToken(ADD, ""))
+			t.pos++
+		case '-':
+			tokens = append(tokens, t.newToken(SUB, ""))
+			t.pos++
+		default:
+			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))
+		}
+
 	}
 
 	tokens = append(tokens, t.newToken(EOF, ""))

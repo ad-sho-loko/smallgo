@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNumeric(t *testing.T) {
+func TestTokenize_Numeric(t *testing.T) {
 	tests := []struct {
 		b    []byte
 		want Token
@@ -23,12 +23,13 @@ func TestNumeric(t *testing.T) {
 	}
 }
 
-func TestOperator(t *testing.T) {
+func TestTokenize_Operator(t *testing.T) {
 	tests := []struct {
 		b    []byte
 		want Token
 	}{
-		{[]byte("+"), Token{Kind: PLUS, Val: ""}},
+		{[]byte("+"), Token{Kind: ADD, Val: ""}},
+		{[]byte("-"), Token{Kind: SUB, Val: ""}},
 	}
 
 	for _, tt := range tests {
@@ -38,7 +39,7 @@ func TestOperator(t *testing.T) {
 	}
 }
 
-func TestSpecial(t *testing.T) {
+func TestTokenize_Special(t *testing.T) {
 	tests := []struct {
 		b    []byte
 		want Token

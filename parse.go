@@ -14,16 +14,16 @@ func NewParser(tokens []*Token) *Parser {
 	}
 }
 
-func (p *Parser) now() *Token {
+func (p *Parser) peek() *Token {
 	return p.tokens[p.pos]
 }
 
 func (p *Parser) isEof() bool {
-	return p.now().Kind == EOF
+	return p.peek().Kind == EOF
 }
 
 func (p *Parser) is(t TokenKind) bool {
-	return !p.isEof() && p.now().Kind == t
+	return !p.isEof() && p.peek().Kind == t
 }
 
 func (p *Parser) consume(t TokenKind) bool {
@@ -35,10 +35,10 @@ func (p *Parser) consume(t TokenKind) bool {
 }
 
 func (p *Parser) expect(t TokenKind) *Token {
-	if p.now().Kind != t {
-		panic(fmt.Sprintf("parse.go : expect %s, but %s", t, p.now().Kind))
+	if p.peek().Kind != t {
+		panic(fmt.Sprintf("parse.go : expect %s, but %s", t, p.peek().Kind))
 	}
-	c := p.now()
+	c := p.peek()
 	p.pos++
 	return c
 }
@@ -51,10 +51,14 @@ func (p *Parser) num() Expr {
 func (p *Parser) add() Node {
 	n := p.num()
 
-	if p.consume(PLUS) {
+	if p.consume(ADD) {
 		left := n.(*Lit)
 		right := p.num().(*Lit)
-		n = &Op{Kind: PLUS, Left: left, Right: right}
+		n = &Op{Kind: ADD, Left: left, Right: right}
+	} else if p.consume(SUB) {
+		left := n.(*Lit)
+		right := p.num().(*Lit)
+		n = &Op{Kind: SUB, Left: left, Right: right}
 	}
 
 	return n

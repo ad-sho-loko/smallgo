@@ -13,9 +13,14 @@ func top(n Node) {
 	case *Op:
 		top(v.Left)
 		top(v.Right)
+		emit("pop rdi")
 		emit("pop rax")
-		emit("pop rdx")
-		emit("add rax, rdx")
+		switch v.Kind {
+		case ADD:
+			emit("add rax, rdi")
+		case SUB:
+			emit("sub rax, rdi")
+		}
 		emit("push rax")
 	default:
 	}
