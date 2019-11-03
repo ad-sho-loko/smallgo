@@ -21,12 +21,16 @@ func gen(ast *Ast, n Node) {
 	switch v := n.(type) {
 	case *FuncDecl:
 		fmt.Printf("%s:\n", v.FuncName.Name)
-		fmt.Println("  push rbp")
-		fmt.Println("  mov rbp, rsp")
+		emit("push rbp")
+		emit("mov rbp, rsp")
 		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
 		for _, b := range v.Body {
 			gen(ast, b)
 		}
+		emit("mov rax, 0")
+		emit("mov rsp, rbp")
+		emit("pop rbp")
+		emit("ret")
 
 	case *ReturnStmt:
 		for _, e := range v.Exprs {
@@ -51,6 +55,11 @@ func gen(ast *Ast, n Node) {
 
 	case *DeclStmt:
 		gen(ast, v.Decl)
+
+	case *ExprStmt:
+		for _, e := range v.Exprs {
+			gen(ast, e)
+		}
 
 	case *GenDecl:
 		for _, spec := range v.Specs {

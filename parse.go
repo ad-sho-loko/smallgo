@@ -43,7 +43,7 @@ func (p *Parser) expect(t TokenKind) *Token {
 	return c
 }
 
-func (p *Parser) ident() *Ident{
+func (p *Parser) ident() *Ident {
 	tkn := p.expect(IDENT)
 	return &Ident{Name: tkn.Val}
 }
@@ -69,10 +69,10 @@ func (p *Parser) primary() Expr {
 	}
 
 	factor := p.factor()
-	if p.consume(LPAREN){
+	if p.consume(LPAREN) {
 		ident := factor.(*Ident)
 		p.expect(RPAREN)
-		return &CallFunc{ FuncName:ident.Name }
+		return &CallFunc{FuncName: ident.Name}
 	}
 	return factor
 }
@@ -180,7 +180,7 @@ func (p *Parser) expr() Expr {
 }
 
 // ex) x = 3
-func (p *Parser) assign() *AssignStmt {
+func (p *Parser) assign() Stmt {
 	lhs := p.expr()
 
 	var rhs Expr
@@ -200,6 +200,8 @@ func (p *Parser) assign() *AssignStmt {
 		rhs = &Binary{Kind: DIV, Left: lhs, Right: p.expr()}
 	} else if p.consume(REM_ASSIGN) {
 		rhs = &Binary{Kind: REM, Left: lhs, Right: p.expr()}
+	} else {
+		return &ExprStmt{Exprs: []Expr{lhs}}
 	}
 
 	return &AssignStmt{
@@ -246,11 +248,9 @@ func (p *Parser) stmt() Stmt {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
 	} else if p.consume(VAR) {
 		return p.varDecl()
-	} else if p.peek().Kind == IDENT {
-		return p.assign()
 	}
 
-	panic("parse.go : invalid statement")
+	return p.assign()
 }
 
 func (p *Parser) toplevel() *FuncDecl {
@@ -261,12 +261,12 @@ func (p *Parser) toplevel() *FuncDecl {
 		p.expect(LPAREN)
 		p.expect(RPAREN)
 
-		if !p.consume(LBRACE){
+		if !p.consume(LBRACE) {
 			funcDecl.ReturnTypeIdent = p.expr().(*Ident)
 			p.expect(LBRACE)
 		}
 
-		for !p.consume(RBRACE){
+		for !p.consume(RBRACE) {
 			funcDecl.Body = append(funcDecl.Body, p.stmt())
 		}
 	}

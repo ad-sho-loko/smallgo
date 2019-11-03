@@ -54,6 +54,10 @@ type (
 	DeclStmt struct {
 		Decl Decl
 	}
+
+	ExprStmt struct {
+		Exprs []Expr
+	}
 )
 
 type (
@@ -74,7 +78,6 @@ type (
 
 	CallFunc struct {
 		FuncName string
-
 	}
 )
 
@@ -105,11 +108,12 @@ type (
 func (r *ReturnStmt) stmtNode() {}
 func (a *AssignStmt) stmtNode() {}
 func (d *DeclStmt) stmtNode()   {}
+func (e *ExprStmt) stmtNode()   {}
 
-func (l *Lit) exprNode()    {}
-func (b *Binary) exprNode() {}
-func (i *Ident) exprNode()  {}
-func (c *CallFunc) exprNode()  {}
+func (l *Lit) exprNode()      {}
+func (b *Binary) exprNode()   {}
+func (i *Ident) exprNode()    {}
+func (c *CallFunc) exprNode() {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

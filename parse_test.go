@@ -25,11 +25,18 @@ func assertNodeWalk(t *testing.T, got, want Node) {
 		assert.Equal(t, gotLit.Kind, n.Kind)
 		assert.Equal(t, gotLit.Val, n.Val)
 	case *ReturnStmt:
-		gotLit, ok := got.(*ReturnStmt)
+		gotStmt, ok := got.(*ReturnStmt)
 		assert.True(t, ok)
 		for i, e := range n.Exprs {
-			assertNodeWalk(t, gotLit.Exprs[i], e)
+			assertNodeWalk(t, gotStmt.Exprs[i], e)
 		}
+	case *ExprStmt:
+		gotStmt, ok := got.(*ExprStmt)
+		assert.True(t, ok)
+		for i, e := range n.Exprs {
+			assertNodeWalk(t, gotStmt.Exprs[i], e)
+		}
+
 	default:
 		t.Fatal("you need to add the types")
 	}
@@ -238,4 +245,25 @@ func TestParse_FuncDecl(t *testing.T) {
 	p := NewParser(test.b)
 	ast := p.toplevel()
 	assertFunc(t, ast, test.want)
+}
+
+func TestParse_ExprStmt(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want *ExprStmt
+	}{
+		b: []*Token{
+			{Kind: NUMBER, Val: "5"},
+			{Kind: EOF, Val: ""},
+		},
+		want: &ExprStmt{
+			Exprs: []Expr{
+				&Lit{Kind: NUMBER, Val: "5"},
+			},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.stmt()
+	assertNodeWalk(t, ast, test.want)
 }
