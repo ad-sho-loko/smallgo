@@ -6,12 +6,14 @@ func emit(s string) {
 	fmt.Println("  " + s)
 }
 
-func lgen(ast *Ast, n Node) {
-	switch v := n.(type) {
+func lgen(ast *Ast, e Expr) {
+	switch v := e.(type) {
 	case *Ident:
 		emit("mov rax, rbp")
 		fmt.Printf("  sub rax, %d\n", ast.Symbols[*v].Offset)
 		emit("push rax")
+	default:
+		panic("gen.go : invalid lgen")
 	}
 }
 
@@ -27,8 +29,12 @@ func gen(ast *Ast, n Node) {
 		emit("ret")
 
 	case *AssignStmt:
-		lgen(ast, v.Lhs)
-		gen(ast, v.Rhs)
+
+		for i := range v.Lhs{
+			lgen(ast, v.Lhs[i])
+			gen(ast, v.Rhs[i])
+		}
+
 		emit("pop rdi")
 		emit("pop rax")
 		emit("mov [rax], rdi")

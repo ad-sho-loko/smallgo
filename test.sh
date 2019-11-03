@@ -41,6 +41,7 @@ try 2 'return 8 >> 2'
 try 8 'return 1 << 3'
 try 1 'return 1+2 > 1*1'
 try 7 'var x = 7 return x'
+try 5 'var x = 7 x = 5 return x'
 try 15 'var x = 5 var y = 10 return x+y'
 # try 15 'var x int x = 15 return x'
 

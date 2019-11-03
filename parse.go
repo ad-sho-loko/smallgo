@@ -203,9 +203,11 @@ func (p *Parser) stmt() Stmt {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
 	} else if p.consume(VAR) {
 		return p.decl()
+	} else if p.peek().Kind == IDENT{
+		return p.assign()
 	}
 
-	panic("parse.go : invalid statement.")
+	panic("parse.go : invalid statement")
 }
 
 func (p *Parser) Parse() *Ast {
