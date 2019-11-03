@@ -5,14 +5,20 @@ import (
 	"testing"
 )
 
-func walkAssert(t *testing.T, got, want Node) {
+func assertFunc(t *testing.T, got, want *FuncDecl) {
+	for i := range want.Body {
+		assertNodeWalk(t, got.Body[i], want.Body[i])
+	}
+}
+
+func assertNodeWalk(t *testing.T, got, want Node) {
 	switch n := want.(type) {
 	case *Binary:
 		gotOp, ok := got.(*Binary)
 		assert.True(t, ok)
 		assert.Equal(t, gotOp.Kind, n.Kind)
-		walkAssert(t, gotOp.Left, n.Left)
-		walkAssert(t, gotOp.Right, n.Right)
+		assertNodeWalk(t, gotOp.Left, n.Left)
+		assertNodeWalk(t, gotOp.Right, n.Right)
 	case *Lit:
 		gotLit, ok := got.(*Lit)
 		assert.True(t, ok)
@@ -22,7 +28,7 @@ func walkAssert(t *testing.T, got, want Node) {
 		gotLit, ok := got.(*ReturnStmt)
 		assert.True(t, ok)
 		for i, e := range n.Exprs {
-			walkAssert(t, gotLit.Exprs[i], e)
+			assertNodeWalk(t, gotLit.Exprs[i], e)
 		}
 	default:
 		t.Fatal("you need to add the types")
@@ -51,7 +57,7 @@ func TestParse_Add(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.expr()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
 }
 
 func TestParse_AddPolynomial(t *testing.T) {
@@ -85,7 +91,7 @@ func TestParse_AddPolynomial(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.expr()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
 }
 
 func TestParse_Mul(t *testing.T) {
@@ -110,7 +116,7 @@ func TestParse_Mul(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.expr()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
 }
 
 func TestParse_Precedence(t *testing.T) {
@@ -141,7 +147,7 @@ func TestParse_Precedence(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.expr()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
 }
 
 func TestParse_Paren(t *testing.T) {
@@ -174,7 +180,7 @@ func TestParse_Paren(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.expr()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
 }
 
 func TestParse_ReturnStmt(t *testing.T) {
@@ -198,5 +204,38 @@ func TestParse_ReturnStmt(t *testing.T) {
 
 	p := NewParser(test.b)
 	ast := p.stmt()
-	walkAssert(t, ast, test.want[0])
+	assertNodeWalk(t, ast, test.want[0])
+}
+
+func TestParse_FuncDecl(t *testing.T) {
+	test := struct {
+		b    []*Token
+		want *FuncDecl
+	}{
+		b: []*Token{
+			{Kind: FUNC, Val: ""},
+			{Kind: IDENT, Val: "main"},
+			{Kind: LPAREN, Val: ""},
+			{Kind: RPAREN, Val: ""},
+			{Kind: IDENT, Val: "int"},
+			{Kind: LBRACE, Val: ""},
+			{Kind: RETURN, Val: ""},
+			{Kind: NUMBER, Val: "5"},
+			{Kind: RBRACE, Val: ""},
+			{Kind: EOF, Val: ""},
+		},
+		want: &FuncDecl{
+			FuncName: &Ident{"main"},
+			Body: []Stmt{&ReturnStmt{
+				Exprs: []Expr{
+					&Lit{Kind: NUMBER, Val: "5"},
+				},
+			},
+			},
+		},
+	}
+
+	p := NewParser(test.b)
+	ast := p.toplevel()
+	assertFunc(t, ast, test.want)
 }

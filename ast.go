@@ -78,6 +78,14 @@ type (
 		Kind  TokenKind
 		Specs []Spec
 	}
+
+	FuncDecl struct {
+		FuncName *Ident
+		// Field
+		ReturnType      *Type
+		ReturnTypeIdent *Ident
+		Body            []Stmt
+	}
 )
 
 type (
@@ -99,3 +107,4 @@ func (i *Ident) exprNode()  {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}
+func (g *FuncDecl) declNode()  {}

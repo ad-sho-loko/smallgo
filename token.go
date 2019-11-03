@@ -30,6 +30,8 @@ const (
 	REM_ASSIGN           // %=
 	LPAREN               // (
 	RPAREN               // )
+	LBRACE               // {
+	RBRACE               // }
 	ASSIGN               // =
 	EQL                  // ==
 	SHL                  // <<
@@ -44,6 +46,7 @@ const (
 	GEQ                  // >=
 	VAR                  // var
 	RETURN               // return
+	FUNC                 // func
 	IDENT
 	EOF
 )
@@ -62,6 +65,8 @@ var tokenString = map[TokenKind]string{
 	REM_ASSIGN: "REM_ASSIGN",
 	LPAREN:     "LPAREN",
 	RPAREN:     "RPAREN",
+	LBRACE:     "LBRACE",
+	RBRACE:     "RBRACE",
 	ASSIGN:     "ASSIGN",
 	EQL:        "EQL",
 	SHL:        "SHL",
@@ -76,6 +81,7 @@ var tokenString = map[TokenKind]string{
 	GEQ:        "GTR",
 	VAR:        "VAR",
 	RETURN:     "RETURN",
+	FUNC:       "FUNC",
 	IDENT:      "IDENT",
 	EOF:        "EOF",
 }
@@ -83,6 +89,7 @@ var tokenString = map[TokenKind]string{
 var keywords = map[string]TokenKind{
 	"var":    VAR,
 	"return": RETURN,
+	"func":   FUNC,
 }
 
 func (t TokenKind) String() string {
@@ -254,6 +261,12 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case ')':
 			tokens = append(tokens, t.newToken(RPAREN, ""))
+			t.pos++
+		case '{':
+			tokens = append(tokens, t.newToken(LBRACE, ""))
+			t.pos++
+		case '}':
+			tokens = append(tokens, t.newToken(RBRACE, ""))
 			t.pos++
 		case '=':
 			t.pos++

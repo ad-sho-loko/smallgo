@@ -19,6 +19,15 @@ func lgen(ast *Ast, e Expr) {
 
 func gen(ast *Ast, n Node) {
 	switch v := n.(type) {
+	case *FuncDecl:
+		fmt.Printf("%s:", v.FuncName.Name)
+		fmt.Println("  push rbp")
+		fmt.Println("  mov rbp, rsp")
+		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
+		for _, b := range v.Body {
+			gen(ast, b)
+		}
+
 	case *ReturnStmt:
 		for _, e := range v.Exprs {
 			gen(ast, e)
@@ -124,10 +133,6 @@ func Gen(ast *Ast) {
 	fmt.Println(".intel_syntax noprefix")
 	fmt.Println(".global main")
 	fmt.Println()
-	fmt.Println("main:")
-	fmt.Println("  push rbp")
-	fmt.Println("  mov rbp, rsp")
-	fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
 
 	for _, n := range ast.Nodes {
 		gen(ast, n)

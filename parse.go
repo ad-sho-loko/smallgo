@@ -243,11 +243,31 @@ func (p *Parser) stmt() Stmt {
 	panic("parse.go : invalid statement")
 }
 
+func (p *Parser) toplevel() *FuncDecl {
+	funcDecl := FuncDecl{}
+
+	if p.consume(FUNC) {
+		funcDecl.FuncName = p.expr().(*Ident)
+		p.expect(LPAREN)
+		p.expect(RPAREN)
+		funcDecl.ReturnTypeIdent = p.expr().(*Ident)
+		p.expect(LBRACE)
+		for {
+			funcDecl.Body = append(funcDecl.Body, p.stmt())
+			if p.consume(RBRACE) {
+				break
+			}
+		}
+	}
+
+	return &funcDecl
+}
+
 func (p *Parser) Parse() *Ast {
 	var nodes []Node
 
 	for p.peek().Kind != EOF {
-		nodes = append(nodes, p.stmt())
+		nodes = append(nodes, p.toplevel())
 	}
 
 	return &Ast{

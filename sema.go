@@ -24,8 +24,24 @@ func resolveType(typeName string) (*Type, error) {
 	return t, nil
 }
 
+//noinspection ALL
 func walkNode(ast *Ast, n Node) error {
 	switch typ := n.(type) {
+	case *FuncDecl:
+		if typ.ReturnType == nil {
+			t, err := resolveType(typ.ReturnTypeIdent.Name)
+			if err != nil {
+				return err
+			}
+			typ.ReturnType = t
+		}
+		walkNode(ast, typ.FuncName)
+		walkNode(ast, typ.ReturnType)
+
+		for _, b := range typ.Body {
+			walkNode(ast, b)
+		}
+
 	case *DeclStmt:
 		walkNode(ast, typ.Decl)
 
@@ -75,5 +91,6 @@ func WalkAst(ast *Ast) error {
 			return err
 		}
 	}
+
 	return nil
 }
