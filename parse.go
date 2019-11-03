@@ -275,6 +275,13 @@ func (p *Parser) ifStmt() *IfStmt {
 	ifStmt := &IfStmt{}
 	ifStmt.Cond = p.expr()
 	ifStmt.Then = p.stmtBlock()
+	if p.consume(ELSE){
+		if p.consume(IF){
+			ifStmt.Else = p.ifStmt()
+		}else{
+			ifStmt.Else = p.stmtBlock()
+		}
+	}
 	return ifStmt
 }
 

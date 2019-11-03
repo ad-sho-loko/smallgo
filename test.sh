@@ -70,6 +70,11 @@ try 0 'func main() { f() } func f() int { return 5 }'
 try 10 'func main() { if 2 > 1 { return 10 } return 5}'
 try 5 'func main() { if 2 < 1 { return 10 } return 5}'
 try 10 'func main() { var x = 5 if 2 > 1 { x = 10 } return x}'
+try 10 'func main() { var x = 5 if 2 > 1 { x = 10 } else { x = 15 } return x}'
+try 15 'func main() { var x = 5 if 1 > 2 { x = 10 } else { x = 15 } return x}'
+try 5 'func main() { var x = 5 if 1 > 2 { x = 10 } else if 1 > 2 { x = 20 } return x}'
+try 20 'func main() { var x = 5 if 1 > 2 { x = 10 } else if 3 > 2 { x = 20 } return x}'
+try 30 'func main() { var x = 5 if 1 > 2 { x = 10 } else if 3 > 4 { x = 20 } else { x = 30} return x}'
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'

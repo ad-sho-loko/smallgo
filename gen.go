@@ -131,13 +131,31 @@ func gen(ast *Ast, n Node) {
 			gen(ast, stmt)
 		}
 		ast.scopeUp()
-	case *IfStmt:
+
+		case *IfStmt:
+
 		genExpr(ast, v.Cond)
 		emit("pop rax")
 		emit("cmp rax, 0")
-		emit("je .LEND")
+
+		l1 := ast.L()
+		l2 := ast.L()
+
+		if v.Else == nil{
+			emit("je .LEND" + l1)
+		}else{
+			emit("je .LELSE" + l2)
+		}
+
 		gen(ast, v.Then)
-		fmt.Println(".LEND:")
+
+		if v.Else != nil{
+			emit("jmp .LEND" + l1)
+			fmt.Println(".LELSE" + l2 + ":")
+			gen(ast, v.Else)
+		}
+
+		fmt.Println(".LEND" + l1 + ":")
 
 	case *AssignStmt:
 		for i := range v.Lhs {

@@ -54,6 +54,7 @@ const (
 	RETURN               // return
 	FUNC                 // func
 	IF                   // if
+	ELSE                 // else
 	IDENT
 	EOF
 )
@@ -96,6 +97,7 @@ var tokenString = map[TokenKind]string{
 	RETURN:     "RETURN",
 	FUNC:       "FUNC",
 	IF:         "IF",
+	ELSE:       "ELSE",
 	IDENT:      "IDENT",
 	EOF:        "EOF",
 }
@@ -105,6 +107,7 @@ var keywords = map[string]TokenKind{
 	"return": RETURN,
 	"func":   FUNC,
 	"if":     IF,
+	"else":   ELSE,
 }
 
 func (t TokenKind) String() string {

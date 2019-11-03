@@ -1,10 +1,18 @@
 package main
 
+import "strconv"
+
 type Ast struct {
 	Nodes          []Node
 	TopScope       *Scope
 	CurrentScope   *Scope
 	semanticErrors []error
+	labelCount     int
+}
+
+func (ast *Ast) L() string {
+	ast.labelCount++
+	return strconv.Itoa(ast.labelCount)
 }
 
 func (ast *Ast) createScope(name string) {
@@ -66,6 +74,7 @@ type (
 	IfStmt struct {
 		Cond Expr
 		Then *BlockStmt
+		Else Stmt
 	}
 
 	BlockStmt struct {

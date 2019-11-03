@@ -21,7 +21,7 @@ func (ast *Ast) walkStmt(stmt Stmt) {
 	case *IfStmt:
 		ast.walkExpr(s.Cond)
 		ast.walkStmt(s.Then)
-
+		ast.walkStmt(s.Else)
 	case *BlockStmt:
 		ast.createScope("__blockStmt")
 		for _, stmt := range s.List {
