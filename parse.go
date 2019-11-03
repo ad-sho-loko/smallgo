@@ -325,7 +325,7 @@ func (p *Parser) toplevel() *FuncDecl {
 	return &funcDecl
 }
 
-func (p *Parser) Parse() *Ast {
+func (p *Parser) ParseFile(scope *Scope) *Ast {
 	var nodes []Node
 
 	for p.peek().Kind != EOF {
@@ -333,7 +333,7 @@ func (p *Parser) Parse() *Ast {
 	}
 
 	return &Ast{
-		Nodes:   nodes,
-		Symbols: make(map[Ident]*Symbol),
+		Nodes: nodes,
+		Scope: NewScope("file_scope", scope),
 	}
 }

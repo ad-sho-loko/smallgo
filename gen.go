@@ -10,7 +10,7 @@ func lgen(ast *Ast, e Expr) {
 	switch v := e.(type) {
 	case *Ident:
 		emit("mov rax, rbp")
-		fmt.Printf("  sub rax, %d\n", ast.Symbols[*v].Offset)
+		fmt.Printf("  sub rax, %d\n", ast.Scope.Symbols[v.Name].Offset)
 		emit("push rax")
 	default:
 		panic("gen.go : invalid lgen")
@@ -106,7 +106,7 @@ func gen(ast *Ast, n Node) {
 		fmt.Printf("%s:\n", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
+		fmt.Printf("  sub rsp, %d\n", ast.Scope.frameSize())
 		gen(ast, v.Body)
 		emit("mov rax, 0")
 		emit("mov rsp, rbp")

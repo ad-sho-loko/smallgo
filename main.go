@@ -18,8 +18,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	universe := NewScope("__universe", nil)
+	universe.DeclType = builtinTypes
+
 	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
-	ast := NewParser(tokens).Parse()
+	ast := NewParser(tokens).ParseFile(universe)
 	err := WalkAst(ast)
 	if err != nil {
 		panic(err)

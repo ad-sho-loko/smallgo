@@ -1,21 +1,8 @@
 package main
 
 type Ast struct {
-	Nodes   []Node
-	Symbols map[Ident]*Symbol
-}
-
-type Symbol struct {
-	Type   *Type
-	Offset int
-}
-
-func (a *Ast) FrameSize() int {
-	sum := 0
-	for _, t := range a.Symbols {
-		sum += t.Type.Size
-	}
-	return sum
+	Nodes []Node
+	Scope *Scope
 }
 
 type Node interface {

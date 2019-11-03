@@ -6,7 +6,7 @@ import (
 
 func makeAst() *Ast {
 	return &Ast{
-		Symbols: make(map[Ident]*Symbol),
+		Scope: NewScope("", nil),
 	}
 }
 
