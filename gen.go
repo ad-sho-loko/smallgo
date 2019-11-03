@@ -30,7 +30,7 @@ func gen(ast *Ast, n Node) {
 
 	case *AssignStmt:
 
-		for i := range v.Lhs{
+		for i := range v.Lhs {
 			lgen(ast, v.Lhs[i])
 			gen(ast, v.Rhs[i])
 		}
@@ -80,7 +80,7 @@ func gen(ast *Ast, n Node) {
 		case DIV:
 			emit("cqo")
 			emit("idiv rdi")
-		case MOD:
+		case REM:
 			emit("cqo")
 			emit("idiv rdi")
 			emit("mov rax, rdx")

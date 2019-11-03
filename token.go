@@ -22,7 +22,12 @@ const (
 	SUB                  // -
 	MUL                  // *
 	DIV                  // /
-	MOD                  // %
+	REM                  // %
+	ADD_ASSIGN           // +=
+	SUB_ASSIGN           // -=
+	MUL_ASSIGN           // *=
+	DIV_ASSIGN           // /=
+	REM_ASSIGN           // %=
 	LPAREN               // (
 	RPAREN               // )
 	ASSIGN               // =
@@ -49,7 +54,12 @@ var tokenString = map[TokenKind]string{
 	SUB:        "SUB",
 	MUL:        "MUL",
 	DIV:        "DIV",
-	MOD:        "MOD",
+	REM:        "REM",
+	ADD_ASSIGN: "ADD_ASSIGN",
+	SUB_ASSIGN: "SUB_ASSIGN",
+	MUL_ASSIGN: "MUL_ASSIGN",
+	DIV_ASSIGN: "QUO_ASSIGN",
+	REM_ASSIGN: "REM_ASSIGN",
 	LPAREN:     "LPAREN",
 	RPAREN:     "RPAREN",
 	ASSIGN:     "ASSIGN",
@@ -58,17 +68,16 @@ var tokenString = map[TokenKind]string{
 	SHL_ASSIGN: "SHL_ASSIGN",
 	SHR:        "SHR",
 	SHR_ASSIGN: "SHR_ASSIGN",
-
-	NEQ:    "NEQ",
-	NOT:    "NOT",
-	LSS:    "LSS",
-	LEQ:    "LEQ",
-	GTR:    "GTR",
-	GEQ:    "GTR",
-	VAR:    "VAR",
-	RETURN: "RETURN",
-	IDENT:  "IDENT",
-	EOF:    "EOF",
+	NEQ:        "NEQ",
+	NOT:        "NOT",
+	LSS:        "LSS",
+	LEQ:        "LEQ",
+	GTR:        "GTR",
+	GEQ:        "GTR",
+	VAR:        "VAR",
+	RETURN:     "RETURN",
+	IDENT:      "IDENT",
+	EOF:        "EOF",
 }
 
 var keywords = map[string]TokenKind{
@@ -221,20 +230,25 @@ func (t *Tokenizer) Tokenize() []*Token {
 
 		switch t.peek() {
 		case '+':
-			tokens = append(tokens, t.newToken(ADD, ""))
 			t.pos++
+			kind := t.switch2(ADD, ADD_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '-':
-			tokens = append(tokens, t.newToken(SUB, ""))
 			t.pos++
+			kind := t.switch2(SUB, SUB_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '*':
-			tokens = append(tokens, t.newToken(MUL, ""))
 			t.pos++
+			kind := t.switch2(MUL, MUL_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '/':
-			tokens = append(tokens, t.newToken(DIV, ""))
 			t.pos++
+			kind := t.switch2(DIV, DIV_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '%':
-			tokens = append(tokens, t.newToken(MOD, ""))
 			t.pos++
+			kind := t.switch2(REM, REM_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '(':
 			tokens = append(tokens, t.newToken(LPAREN, ""))
 			t.pos++

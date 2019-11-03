@@ -88,10 +88,10 @@ func (p *Parser) mul() Expr {
 			left := n.(Expr)
 			right := p.unary().(Expr)
 			n = &Binary{Kind: DIV, Left: left, Right: right}
-		} else if p.consume(MOD) {
+		} else if p.consume(REM) {
 			left := n.(Expr)
 			right := p.unary().(Expr)
-			n = &Binary{Kind: MOD, Left: left, Right: right}
+			n = &Binary{Kind: REM, Left: left, Right: right}
 		} else if p.consume(SHL) {
 			left := n.(Expr)
 			right := p.unary().(Expr)
@@ -172,8 +172,25 @@ func (p *Parser) expr() Expr {
 // ex) x = 3
 func (p *Parser) assign() *AssignStmt {
 	lhs := p.expr()
-	p.expect(ASSIGN)
-	rhs := p.expr()
+
+	var rhs Expr
+	if p.consume(ASSIGN) {
+		rhs = p.expr()
+	} else if p.consume(SHL_ASSIGN) {
+		rhs = &Binary{Kind: SHL, Left: lhs, Right: p.expr()}
+	} else if p.consume(SHR_ASSIGN) {
+		rhs = &Binary{Kind: SHR, Left: lhs, Right: p.expr()}
+	} else if p.consume(ADD_ASSIGN){
+		rhs = &Binary{Kind: ADD, Left: lhs, Right: p.expr()}
+	} else if p.consume(SUB_ASSIGN){
+		rhs = &Binary{Kind: SUB, Left: lhs, Right: p.expr()}
+	} else if p.consume(MUL_ASSIGN){
+		rhs = &Binary{Kind: MUL, Left: lhs, Right: p.expr()}
+	} else if p.consume(DIV_ASSIGN){
+		rhs = &Binary{Kind: DIV, Left: lhs, Right: p.expr()}
+	} else if p.consume(REM_ASSIGN){
+		rhs = &Binary{Kind: REM, Left: lhs, Right: p.expr()}
+	}
 
 	return &AssignStmt{
 		Lhs: []Expr{lhs},
@@ -203,7 +220,7 @@ func (p *Parser) stmt() Stmt {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
 	} else if p.consume(VAR) {
 		return p.decl()
-	} else if p.peek().Kind == IDENT{
+	} else if p.peek().Kind == IDENT {
 		return p.assign()
 	}
 

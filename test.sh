@@ -43,6 +43,13 @@ try 1 'return 1+2 > 1*1'
 try 7 'var x = 7 return x'
 try 5 'var x = 7 x = 5 return x'
 try 15 'var x = 5 var y = 10 return x+y'
+try 8 'var x = 2 x <<= 2 return x'
+try 2 'var x = 8 x >>= 2 return x'
+try 10 'var x = 8 x += 2 return x'
+try 6 'var x = 8 x -= 2 return x'
+try 16 'var x = 8 x *= 2 return x'
+try 4 'var x = 8 x /= 2 return x'
+try 0 'var x = 8 x %= 2 return x'
 # try 15 'var x int x = 15 return x'
 
 echo OK
