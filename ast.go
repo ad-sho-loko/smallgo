@@ -77,6 +77,13 @@ type (
 		Else Stmt
 	}
 
+	ForStmt struct {
+		Init Stmt
+		Cond Expr
+		Post Stmt
+		Body *BlockStmt
+	}
+
 	BlockStmt struct {
 		List []Stmt
 	}
@@ -137,6 +144,7 @@ func (d *DeclStmt) stmtNode()   {}
 func (b *BlockStmt) stmtNode()  {}
 func (e *ExprStmt) stmtNode()   {}
 func (i *IfStmt) stmtNode()     {}
+func (f *ForStmt) stmtNode()    {}
 
 func (l *Lit) exprNode()      {}
 func (b *Binary) exprNode()   {}

@@ -22,6 +22,11 @@ func (ast *Ast) walkStmt(stmt Stmt) {
 		ast.walkExpr(s.Cond)
 		ast.walkStmt(s.Then)
 		ast.walkStmt(s.Else)
+	case *ForStmt:
+		ast.walkStmt(s.Init)
+		ast.walkExpr(s.Cond)
+		ast.walkStmt(s.Post)
+		ast.walkStmt(s.Body)
 	case *BlockStmt:
 		ast.createScope("__blockStmt")
 		for _, stmt := range s.List {

@@ -35,6 +35,7 @@ func TestTokenize_String(t *testing.T) {
 		{[]byte("func"), Token{Kind: FUNC, Val: ""}},
 		{[]byte("if"), Token{Kind: IF, Val: ""}},
 		{[]byte("else"), Token{Kind: ELSE, Val: ""}},
+		{[]byte("for"), Token{Kind: FOR, Val: ""}},
 		// {[]byte("_abc"), Token{Kind: IDENT, Val: "_abc"}},
 		// {[]byte("a_b_c_"), Token{Kind: IDENT, Val: "_abc"}},
 	}
@@ -69,6 +70,7 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 		{[]byte("{"), Token{Kind: LBRACE, Val: ""}},
 		{[]byte("}"), Token{Kind: RBRACE, Val: ""}},
+		{[]byte(";"), Token{Kind: SEMICOLON, Val: ""}},
 		{[]byte("=="), Token{Kind: EQL, Val: ""}},
 		{[]byte("!="), Token{Kind: NEQ, Val: ""}},
 		{[]byte("&&"), Token{Kind: LAND, Val: ""}},

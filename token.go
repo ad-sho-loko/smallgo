@@ -36,6 +36,7 @@ const (
 	RPAREN               // )
 	LBRACE               // {
 	RBRACE               // }
+	SEMICOLON            // ;
 	ASSIGN               // =
 	EQL                  // ==
 	SHL                  // <<
@@ -55,6 +56,7 @@ const (
 	FUNC                 // func
 	IF                   // if
 	ELSE                 // else
+	FOR                  // for
 	IDENT
 	EOF
 )
@@ -79,6 +81,7 @@ var tokenString = map[TokenKind]string{
 	RPAREN:     "RPAREN",
 	LBRACE:     "LBRACE",
 	RBRACE:     "RBRACE",
+	SEMICOLON:  "SEMICOLON",
 	ASSIGN:     "ASSIGN",
 	EQL:        "EQL",
 	SHL:        "SHL",
@@ -98,6 +101,7 @@ var tokenString = map[TokenKind]string{
 	FUNC:       "FUNC",
 	IF:         "IF",
 	ELSE:       "ELSE",
+	FOR:        "FOR",
 	IDENT:      "IDENT",
 	EOF:        "EOF",
 }
@@ -108,6 +112,7 @@ var keywords = map[string]TokenKind{
 	"func":   FUNC,
 	"if":     IF,
 	"else":   ELSE,
+	"for":    FOR,
 }
 
 func (t TokenKind) String() string {
@@ -329,6 +334,9 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 			kind := t.switch3('&', AND, AND_ASSIGN, LAND)
 			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
+		case ';':
+			tokens = append(tokens, t.newToken(SEMICOLON, ""))
 			t.pos++
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))

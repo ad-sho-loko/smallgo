@@ -74,6 +74,7 @@ func (p *Parser) primary() Expr {
 		p.expect(RPAREN)
 		return &CallFunc{FuncName: ident.Name}
 	}
+
 	return factor
 }
 
@@ -271,14 +272,51 @@ func (p *Parser) varDecl() *DeclStmt {
 	}
 }
 
+func (p *Parser) forStmt() *ForStmt {
+	forStmt := &ForStmt{}
+
+	// ex ) for { x = 5 }
+	if p.peek().Kind == LBRACE {
+		forStmt.Body = p.stmtBlock()
+		return forStmt
+	}
+
+	if p.peek().Kind != SEMICOLON {
+		forStmt.Init = p.simpleStmt()
+
+		// ex ) for i < 10 {}
+		e, ok := forStmt.Init.(*ExprStmt)
+		if ok && len(e.Exprs) == 1 {
+			forStmt.Init = nil
+			forStmt.Cond = e.Exprs[0]
+			forStmt.Body = p.stmtBlock()
+			return forStmt
+		}
+	}
+
+	p.expect(SEMICOLON)
+
+	if !p.consume(SEMICOLON) {
+		forStmt.Cond = p.expr()
+		p.expect(SEMICOLON)
+	}
+
+	if p.peek().Kind != LBRACE {
+		forStmt.Post = p.simpleStmt()
+	}
+
+	forStmt.Body = p.stmtBlock()
+	return forStmt
+}
+
 func (p *Parser) ifStmt() *IfStmt {
 	ifStmt := &IfStmt{}
 	ifStmt.Cond = p.expr()
 	ifStmt.Then = p.stmtBlock()
-	if p.consume(ELSE){
-		if p.consume(IF){
+	if p.consume(ELSE) {
+		if p.consume(IF) {
 			ifStmt.Else = p.ifStmt()
-		}else{
+		} else {
 			ifStmt.Else = p.stmtBlock()
 		}
 	}
@@ -296,6 +334,10 @@ func (p *Parser) simpleStmt() Stmt {
 func (p *Parser) stmt() Stmt {
 	if p.consume(IF) {
 		return p.ifStmt()
+	}
+
+	if p.consume(FOR) {
+		return p.forStmt()
 	}
 
 	if p.consume(VAR) {

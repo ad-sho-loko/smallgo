@@ -20,6 +20,10 @@ func lgen(ast *Ast, e Expr) {
 }
 
 func genExpr(ast *Ast, expr Expr) {
+	if expr == nil {
+		return
+	}
+
 	switch e := expr.(type) {
 	case *CallFunc:
 		fmt.Printf("  call %s\n", e.FuncName)
@@ -98,6 +102,10 @@ func genExpr(ast *Ast, expr Expr) {
 }
 
 func gen(ast *Ast, n Node) {
+	if n == nil {
+		return
+	}
+
 	_, isExpr := n.(Expr)
 	if isExpr {
 		panic("gen() must be called in case of n is Expr")
@@ -132,8 +140,7 @@ func gen(ast *Ast, n Node) {
 		}
 		ast.scopeUp()
 
-		case *IfStmt:
-
+	case *IfStmt:
 		genExpr(ast, v.Cond)
 		emit("pop rax")
 		emit("cmp rax, 0")
@@ -141,21 +148,41 @@ func gen(ast *Ast, n Node) {
 		l1 := ast.L()
 		l2 := ast.L()
 
-		if v.Else == nil{
+		if v.Else == nil {
 			emit("je .LEND" + l1)
-		}else{
+		} else {
 			emit("je .LELSE" + l2)
 		}
 
 		gen(ast, v.Then)
 
-		if v.Else != nil{
+		if v.Else != nil {
 			emit("jmp .LEND" + l1)
 			fmt.Println(".LELSE" + l2 + ":")
 			gen(ast, v.Else)
 		}
 
 		fmt.Println(".LEND" + l1 + ":")
+
+	case *ForStmt:
+		gen(ast, v.Init)
+		l1 := ast.L()
+		l2 := ast.L()
+
+		emit(".LINIT" + l1 + ":")
+		if v.Cond != nil {
+			genExpr(ast, v.Cond)
+			emit("pop rax")
+			emit("cmp rax, 0")
+			emit("je .LEND" + l2)
+		}
+		gen(ast, v.Body)
+		gen(ast, v.Post)
+
+		emit("jmp .LINIT" + l1)
+		if v.Cond != nil {
+			emit(".LEND" + l2 + ":")
+		}
 
 	case *AssignStmt:
 		for i := range v.Lhs {
