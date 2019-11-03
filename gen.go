@@ -107,9 +107,7 @@ func gen(ast *Ast, n Node) {
 		emit("push rbp")
 		emit("mov rbp, rsp")
 		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
-		for _, b := range v.Body {
-			gen(ast, b)
-		}
+		gen(ast, v.Body)
 		emit("mov rax, 0")
 		emit("mov rsp, rbp")
 		emit("pop rbp")
@@ -124,6 +122,19 @@ func gen(ast *Ast, n Node) {
 		emit("mov rsp, rbp")
 		emit("pop rbp")
 		emit("ret")
+
+	case *BlockStmt:
+		for _, stmt := range v.List {
+			gen(ast, stmt)
+		}
+
+	case *IfStmt:
+		genExpr(ast, v.Cond)
+		emit("pop rax")
+		emit("cmp rax, 0")
+		emit("je .LEND")
+		gen(ast, v.Then)
+		fmt.Println(".LEND:")
 
 	case *AssignStmt:
 		for i := range v.Lhs {

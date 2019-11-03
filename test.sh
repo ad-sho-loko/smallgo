@@ -67,5 +67,7 @@ try 15 'func main() int { var x int64 x = 15 return x }'
 try 5 'func main() int { return f() } func f() int { return 5 }'
 try 0 'func main() { 5 }'
 try 0 'func main() { f() } func f() int { return 5 }'
+try 10 'func main() { if 2 > 1 { return 10 } return 5}'
+try 5 'func main() { if 2 < 1 { return 10 } return 5}'
 
 echo OK

@@ -269,17 +269,42 @@ func (p *Parser) varDecl() *DeclStmt {
 			Specs: specs,
 		},
 	}
-
 }
 
-func (p *Parser) stmt() Stmt {
+func (p *Parser) ifStmt() *IfStmt {
+	ifStmt := &IfStmt{}
+	ifStmt.Cond = p.expr()
+	ifStmt.Then = p.stmtBlock()
+	return ifStmt
+}
+
+func (p *Parser) simpleStmt() Stmt {
 	if p.consume(RETURN) {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
-	} else if p.consume(VAR) {
-		return p.varDecl()
 	}
 
 	return p.assign()
+}
+
+func (p *Parser) stmt() Stmt {
+	if p.consume(IF) {
+		return p.ifStmt()
+	}
+
+	if p.consume(VAR) {
+		return p.varDecl()
+	}
+
+	return p.simpleStmt()
+}
+
+func (p *Parser) stmtBlock() *BlockStmt {
+	p.expect(LBRACE)
+	b := &BlockStmt{}
+	for !p.consume(RBRACE) {
+		b.List = append(b.List, p.stmt())
+	}
+	return b
 }
 
 func (p *Parser) toplevel() *FuncDecl {
@@ -290,14 +315,11 @@ func (p *Parser) toplevel() *FuncDecl {
 		p.expect(LPAREN)
 		p.expect(RPAREN)
 
-		if !p.consume(LBRACE) {
+		if p.peek().Kind == IDENT {
 			funcDecl.ReturnTypeIdent = p.expr().(*Ident)
-			p.expect(LBRACE)
 		}
 
-		for !p.consume(RBRACE) {
-			funcDecl.Body = append(funcDecl.Body, p.stmt())
-		}
+		funcDecl.Body = p.stmtBlock()
 	}
 
 	return &funcDecl

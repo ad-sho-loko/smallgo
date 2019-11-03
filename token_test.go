@@ -33,6 +33,7 @@ func TestTokenize_String(t *testing.T) {
 		{[]byte("x"), Token{Kind: IDENT, Val: "x"}},
 		{[]byte("int64"), Token{Kind: IDENT, Val: "int64"}},
 		{[]byte("func"), Token{Kind: FUNC, Val: ""}},
+		{[]byte("if"), Token{Kind: IF, Val: ""}},
 		// {[]byte("_abc"), Token{Kind: IDENT, Val: "_abc"}},
 		// {[]byte("a_b_c_"), Token{Kind: IDENT, Val: "_abc"}},
 	}

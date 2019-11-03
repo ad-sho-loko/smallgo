@@ -38,7 +38,7 @@ func walkNode(ast *Ast, n Node) error {
 		walkNode(ast, typ.FuncName)
 		walkNode(ast, typ.ReturnType)
 
-		for _, b := range typ.Body {
+		for _, b := range typ.Body.List {
 			walkNode(ast, b)
 		}
 

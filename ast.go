@@ -55,6 +55,15 @@ type (
 		Decl Decl
 	}
 
+	IfStmt struct {
+		Cond Expr
+		Then *BlockStmt
+	}
+
+	BlockStmt struct {
+		List []Stmt
+	}
+
 	ExprStmt struct {
 		Exprs []Expr
 	}
@@ -92,7 +101,7 @@ type (
 		// Field
 		ReturnType      *Type
 		ReturnTypeIdent *Ident
-		Body            []Stmt
+		Body            *BlockStmt
 	}
 )
 
@@ -108,7 +117,9 @@ type (
 func (r *ReturnStmt) stmtNode() {}
 func (a *AssignStmt) stmtNode() {}
 func (d *DeclStmt) stmtNode()   {}
+func (b *BlockStmt) stmtNode()  {}
 func (e *ExprStmt) stmtNode()   {}
+func (i *IfStmt) stmtNode()     {}
 
 func (l *Lit) exprNode()      {}
 func (b *Binary) exprNode()   {}

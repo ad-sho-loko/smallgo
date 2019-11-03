@@ -53,6 +53,7 @@ const (
 	VAR                  // var
 	RETURN               // return
 	FUNC                 // func
+	IF                   // if
 	IDENT
 	EOF
 )
@@ -94,6 +95,7 @@ var tokenString = map[TokenKind]string{
 	VAR:        "VAR",
 	RETURN:     "RETURN",
 	FUNC:       "FUNC",
+	IF:         "IF",
 	IDENT:      "IDENT",
 	EOF:        "EOF",
 }
@@ -102,6 +104,7 @@ var keywords = map[string]TokenKind{
 	"var":    VAR,
 	"return": RETURN,
 	"func":   FUNC,
+	"if":     IF,
 }
 
 func (t TokenKind) String() string {

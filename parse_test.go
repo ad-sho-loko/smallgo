@@ -6,8 +6,8 @@ import (
 )
 
 func assertFunc(t *testing.T, got, want *FuncDecl) {
-	for i := range want.Body {
-		assertNodeWalk(t, got.Body[i], want.Body[i])
+	for i := range want.Body.List {
+		assertNodeWalk(t, got.Body.List[i], want.Body.List[i])
 	}
 }
 
@@ -233,11 +233,13 @@ func TestParse_FuncDecl(t *testing.T) {
 		},
 		want: &FuncDecl{
 			FuncName: &Ident{"main"},
-			Body: []Stmt{&ReturnStmt{
-				Exprs: []Expr{
-					&Lit{Kind: NUMBER, Val: "5"},
+			Body: &BlockStmt{
+				List: []Stmt{&ReturnStmt{
+					Exprs: []Expr{
+						&Lit{Kind: NUMBER, Val: "5"},
+					},
 				},
-			},
+				},
 			},
 		},
 	}
