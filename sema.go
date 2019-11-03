@@ -28,7 +28,7 @@ func resolveType(typeName string) (*Type, error) {
 func walkNode(ast *Ast, n Node) error {
 	switch typ := n.(type) {
 	case *FuncDecl:
-		if typ.ReturnType == nil {
+		if typ.ReturnTypeIdent != nil && typ.ReturnType == nil {
 			t, err := resolveType(typ.ReturnTypeIdent.Name)
 			if err != nil {
 				return err

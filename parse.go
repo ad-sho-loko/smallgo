@@ -43,6 +43,11 @@ func (p *Parser) expect(t TokenKind) *Token {
 	return c
 }
 
+func (p *Parser) ident() *Ident{
+	tkn := p.expect(IDENT)
+	return &Ident{Name: tkn.Val}
+}
+
 func (p *Parser) factor() Expr {
 	if p.peek().Kind == NUMBER {
 		tkn := p.expect(NUMBER)
@@ -50,8 +55,7 @@ func (p *Parser) factor() Expr {
 	}
 
 	if p.peek().Kind == IDENT {
-		tkn := p.expect(IDENT)
-		return &Ident{Name: tkn.Val}
+		return p.ident()
 	}
 
 	panic(fmt.Sprintf("parse.go : invalid factor %s", p.peek()))
@@ -64,7 +68,13 @@ func (p *Parser) primary() Expr {
 		return n
 	}
 
-	return p.factor()
+	factor := p.factor()
+	if p.consume(LPAREN){
+		ident := factor.(*Ident)
+		p.expect(RPAREN)
+		return &CallFunc{ FuncName:ident.Name }
+	}
+	return factor
 }
 
 func (p *Parser) unary() Expr {
@@ -247,16 +257,17 @@ func (p *Parser) toplevel() *FuncDecl {
 	funcDecl := FuncDecl{}
 
 	if p.consume(FUNC) {
-		funcDecl.FuncName = p.expr().(*Ident)
+		funcDecl.FuncName = p.ident()
 		p.expect(LPAREN)
 		p.expect(RPAREN)
-		funcDecl.ReturnTypeIdent = p.expr().(*Ident)
-		p.expect(LBRACE)
-		for {
+
+		if !p.consume(LBRACE){
+			funcDecl.ReturnTypeIdent = p.expr().(*Ident)
+			p.expect(LBRACE)
+		}
+
+		for !p.consume(RBRACE){
 			funcDecl.Body = append(funcDecl.Body, p.stmt())
-			if p.consume(RBRACE) {
-				break
-			}
 		}
 	}
 

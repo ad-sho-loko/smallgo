@@ -3,8 +3,9 @@
 try() {
   expected="$1"
   input="$2"
-
+  # echo "\033[0;31m[test target : $input]\033[0;39m"
   echo "[Test : $input]"
+
   ./smallgo "$input" > tmp.s
   gcc -o tmp tmp.s
   ./tmp
@@ -54,5 +55,6 @@ try 15 'func main() int { var x int x = 15 return x }'
 try 15 'func main() int { var x1 int x1 = 15 return x1 }'
 try 0 'func main() int { var x int return x }'
 try 15 'func main() int { var x int64 x = 15 return x }'
+try 5 'func main() int { return f() } func f() int { return 5 }'
 
 echo OK

@@ -71,6 +71,11 @@ type (
 	Ident struct {
 		Name string
 	}
+
+	CallFunc struct {
+		FuncName string
+
+	}
 )
 
 type (
@@ -104,6 +109,7 @@ func (d *DeclStmt) stmtNode()   {}
 func (l *Lit) exprNode()    {}
 func (b *Binary) exprNode() {}
 func (i *Ident) exprNode()  {}
+func (c *CallFunc) exprNode()  {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

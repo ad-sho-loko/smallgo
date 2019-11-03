@@ -20,7 +20,7 @@ func lgen(ast *Ast, e Expr) {
 func gen(ast *Ast, n Node) {
 	switch v := n.(type) {
 	case *FuncDecl:
-		fmt.Printf("%s:", v.FuncName.Name)
+		fmt.Printf("%s:\n", v.FuncName.Name)
 		fmt.Println("  push rbp")
 		fmt.Println("  mov rbp, rsp")
 		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
@@ -32,6 +32,7 @@ func gen(ast *Ast, n Node) {
 		for _, e := range v.Exprs {
 			gen(ast, e)
 		}
+
 		emit("pop rax")
 		emit("mov rsp, rbp")
 		emit("pop rbp")
@@ -64,6 +65,10 @@ func gen(ast *Ast, n Node) {
 			emit("pop rax")
 			emit("mov [rax], rdi")
 		}
+
+	case *CallFunc:
+		fmt.Printf("  call %s\n", v.FuncName)
+		emit("push rax")
 
 	case *Ident:
 		lgen(ast, v)
