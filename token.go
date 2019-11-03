@@ -23,6 +23,10 @@ const (
 	MUL                  // *
 	DIV                  // /
 	REM                  // %
+	OR                   // |
+	OR_ASSIGN            // |=
+	AND                  // &
+	AND_ASSIGN           // &=
 	ADD_ASSIGN           // +=
 	SUB_ASSIGN           // -=
 	MUL_ASSIGN           // *=
@@ -40,6 +44,8 @@ const (
 	SHR_ASSIGN           // >>=
 	NEQ                  // !=
 	NOT                  // !
+	LOR                  // ||
+	LAND                 // &&
 	LSS                  // <
 	LEQ                  // <=
 	GTR                  // >
@@ -58,6 +64,10 @@ var tokenString = map[TokenKind]string{
 	MUL:        "MUL",
 	DIV:        "DIV",
 	REM:        "REM",
+	OR:         "OR",
+	OR_ASSIGN:  "OR_ASSIGN",
+	AND:        "AND",
+	AND_ASSIGN: "AND_ASSIGN",
 	ADD_ASSIGN: "ADD_ASSIGN",
 	SUB_ASSIGN: "SUB_ASSIGN",
 	MUL_ASSIGN: "MUL_ASSIGN",
@@ -75,6 +85,8 @@ var tokenString = map[TokenKind]string{
 	SHR_ASSIGN: "SHR_ASSIGN",
 	NEQ:        "NEQ",
 	NOT:        "NOT",
+	LOR:        "LOR",
+	LAND:       "LAND",
 	LSS:        "LSS",
 	LEQ:        "LEQ",
 	GTR:        "GTR",
@@ -158,6 +170,22 @@ func (t *Tokenizer) switch2(kind1, kind2 TokenKind) TokenKind {
 	if !t.isEof() && t.peek() == '=' {
 		t.pos++
 		return kind2
+	}
+
+	return kind1
+}
+
+func (t *Tokenizer) switch3(ch byte, kind1, kind2, kind3 TokenKind) TokenKind {
+	if t.isEof() {
+		return kind1
+	}
+
+	if t.peek() == '=' {
+		return kind2
+	}
+
+	if t.peek() == ch {
+		return kind3
 	}
 
 	return kind1
@@ -284,6 +312,16 @@ func (t *Tokenizer) Tokenize() []*Token {
 		case '!':
 			t.pos++
 			kind := t.switch2(NOT, NEQ)
+			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
+		case '|':
+			t.pos++
+			kind := t.switch3('|', OR, OR_ASSIGN, LOR)
+			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
+		case '&':
+			t.pos++
+			kind := t.switch3('&', AND, AND_ASSIGN, LAND)
 			tokens = append(tokens, t.newToken(kind, ""))
 			t.pos++
 		default:

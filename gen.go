@@ -17,83 +17,27 @@ func lgen(ast *Ast, e Expr) {
 	}
 }
 
-func gen(ast *Ast, n Node) {
-	switch v := n.(type) {
-	case *FuncDecl:
-		fmt.Printf("%s:\n", v.FuncName.Name)
-		emit("push rbp")
-		emit("mov rbp, rsp")
-		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
-		for _, b := range v.Body {
-			gen(ast, b)
-		}
-		emit("mov rax, 0")
-		emit("mov rsp, rbp")
-		emit("pop rbp")
-		emit("ret")
-
-	case *ReturnStmt:
-		for _, e := range v.Exprs {
-			gen(ast, e)
-		}
-
-		emit("pop rax")
-		emit("mov rsp, rbp")
-		emit("pop rbp")
-		emit("ret")
-
-	case *AssignStmt:
-
-		for i := range v.Lhs {
-			lgen(ast, v.Lhs[i])
-			gen(ast, v.Rhs[i])
-		}
-
-		emit("pop rdi")
-		emit("pop rax")
-		emit("mov [rax], rdi")
-
-	case *DeclStmt:
-		gen(ast, v.Decl)
-
-	case *ExprStmt:
-		for _, e := range v.Exprs {
-			gen(ast, e)
-		}
-
-	case *GenDecl:
-		for _, spec := range v.Specs {
-			gen(ast, spec)
-		}
-
-	case *ValueSpec:
-		for i, expr := range v.InitValues {
-			lgen(ast, v.Names[i])
-			gen(ast, expr)
-			emit("pop rdi")
-			emit("pop rax")
-			emit("mov [rax], rdi")
-		}
-
+func genExpr(ast *Ast, expr Expr) {
+	switch e := expr.(type) {
 	case *CallFunc:
-		fmt.Printf("  call %s\n", v.FuncName)
+		fmt.Printf("  call %s\n", e.FuncName)
 		emit("push rax")
 
 	case *Ident:
-		lgen(ast, v)
+		lgen(ast, e)
 		emit("pop rax")
 		emit("mov rax, [rax]")
 		emit("push rax")
 
 	case *Lit:
-		fmt.Printf("  push %s\n", v.Val)
+		fmt.Printf("  push %s\n", e.Val)
 
 	case *Binary:
-		gen(ast, v.Left)
-		gen(ast, v.Right)
+		genExpr(ast, e.Left)
+		genExpr(ast, e.Right)
 		emit("pop rdi")
 		emit("pop rax")
-		switch v.Kind {
+		switch e.Kind {
 		case ADD:
 			emit("add rax, rdi")
 		case SUB:
@@ -137,9 +81,81 @@ func gen(ast *Ast, n Node) {
 		case SHL:
 			emit("mov cl, dil")
 			emit("shl rax, cl")
+		case OR:
+			emit("or rax, rdi")
+		case LOR:
+			emit("or rax, rdi")
+		case AND:
+			emit("and rax, rdi")
+		case LAND:
+			emit("and rax, rdi")
 		}
 		emit("push rax")
 	default:
+	}
+}
+
+func gen(ast *Ast, n Node) {
+	_, isExpr := n.(Expr)
+	if isExpr {
+		panic("gen() must be called in case of n is Expr")
+	}
+
+	switch v := n.(type) {
+	case *FuncDecl:
+		fmt.Printf("%s:\n", v.FuncName.Name)
+		emit("push rbp")
+		emit("mov rbp, rsp")
+		fmt.Printf("  sub rsp, %d\n", ast.FrameSize())
+		for _, b := range v.Body {
+			gen(ast, b)
+		}
+		emit("mov rax, 0")
+		emit("mov rsp, rbp")
+		emit("pop rbp")
+		emit("ret")
+
+	case *ReturnStmt:
+		for _, e := range v.Exprs {
+			genExpr(ast, e)
+		}
+
+		emit("pop rax")
+		emit("mov rsp, rbp")
+		emit("pop rbp")
+		emit("ret")
+
+	case *AssignStmt:
+		for i := range v.Lhs {
+			lgen(ast, v.Lhs[i])
+			genExpr(ast, v.Rhs[i])
+		}
+
+		emit("pop rdi")
+		emit("pop rax")
+		emit("mov [rax], rdi")
+
+	case *DeclStmt:
+		gen(ast, v.Decl)
+
+	case *ExprStmt:
+		for _, e := range v.Exprs {
+			genExpr(ast, e)
+		}
+
+	case *GenDecl:
+		for _, spec := range v.Specs {
+			gen(ast, spec)
+		}
+
+	case *ValueSpec:
+		for i, expr := range v.InitValues {
+			lgen(ast, v.Names[i])
+			genExpr(ast, expr)
+			emit("pop rdi")
+			emit("pop rax")
+			emit("mov [rax], rdi")
+		}
 	}
 }
 

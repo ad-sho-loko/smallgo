@@ -127,6 +127,14 @@ func (p *Parser) add() Expr {
 			left := n.(Expr)
 			right := p.mul().(Expr)
 			n = &Binary{Kind: SUB, Left: left, Right: right}
+		} else if p.consume(OR) {
+			left := n.(Expr)
+			right := p.mul().(Expr)
+			n = &Binary{Kind: OR, Left: left, Right: right}
+		} else if p.consume(AND) {
+			left := n.(Expr)
+			right := p.mul().(Expr)
+			n = &Binary{Kind: AND, Left: left, Right: right}
 		} else {
 			return n
 		}
@@ -175,8 +183,25 @@ func (p *Parser) eq() Expr {
 	}
 }
 
+func (p *Parser) binary() Expr {
+	n := p.eq()
+	for {
+		if p.consume(LOR) {
+			left := n.(Expr)
+			right := p.eq().(Expr)
+			n = &Binary{Kind: LOR, Left: left, Right: right}
+		} else if p.consume(LAND) {
+			left := n.(Expr)
+			right := p.eq().(Expr)
+			n = &Binary{Kind: LOR, Left: left, Right: right}
+		} else {
+			return n
+		}
+	}
+}
+
 func (p *Parser) expr() Expr {
-	return p.eq()
+	return p.binary()
 }
 
 // ex) x = 3
@@ -200,6 +225,10 @@ func (p *Parser) assign() Stmt {
 		rhs = &Binary{Kind: DIV, Left: lhs, Right: p.expr()}
 	} else if p.consume(REM_ASSIGN) {
 		rhs = &Binary{Kind: REM, Left: lhs, Right: p.expr()}
+	} else if p.consume(OR_ASSIGN) {
+		rhs = &Binary{Kind: OR, Left: lhs, Right: p.expr()}
+	} else if p.consume(AND_ASSIGN) {
+		rhs = &Binary{Kind: AND, Left: lhs, Right: p.expr()}
 	} else {
 		return &ExprStmt{Exprs: []Expr{lhs}}
 	}
