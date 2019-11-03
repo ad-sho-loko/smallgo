@@ -32,6 +32,8 @@ const (
 	MUL_ASSIGN           // *=
 	DIV_ASSIGN           // /=
 	REM_ASSIGN           // %=
+	INC                  // ++
+	DEC                  // --
 	LPAREN               // (
 	RPAREN               // )
 	LBRACE               // {
@@ -77,6 +79,8 @@ var tokenString = map[TokenKind]string{
 	MUL_ASSIGN: "MUL_ASSIGN",
 	DIV_ASSIGN: "QUO_ASSIGN",
 	REM_ASSIGN: "REM_ASSIGN",
+	INC:        "INC",
+	DEC:        "DEC",
 	LPAREN:     "LPAREN",
 	RPAREN:     "RPAREN",
 	LBRACE:     "LBRACE",
@@ -192,10 +196,12 @@ func (t *Tokenizer) switch3(ch byte, kind1, kind2, kind3 TokenKind) TokenKind {
 	}
 
 	if t.peek() == '=' {
+		t.pos++
 		return kind2
 	}
 
 	if t.peek() == ch {
+		t.pos++
 		return kind3
 	}
 
@@ -277,11 +283,11 @@ func (t *Tokenizer) Tokenize() []*Token {
 		switch t.peek() {
 		case '+':
 			t.pos++
-			kind := t.switch2(ADD, ADD_ASSIGN)
+			kind := t.switch3('+', ADD, ADD_ASSIGN, INC)
 			tokens = append(tokens, t.newToken(kind, ""))
 		case '-':
 			t.pos++
-			kind := t.switch2(SUB, SUB_ASSIGN)
+			kind := t.switch3('-', SUB, SUB_ASSIGN, DEC)
 			tokens = append(tokens, t.newToken(kind, ""))
 		case '*':
 			t.pos++

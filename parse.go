@@ -226,6 +226,10 @@ func (p *Parser) assign() Stmt {
 		rhs = &Binary{Kind: DIV, Left: lhs, Right: p.expr()}
 	} else if p.consume(REM_ASSIGN) {
 		rhs = &Binary{Kind: REM, Left: lhs, Right: p.expr()}
+	} else if p.consume(INC) {
+		rhs = &Binary{Kind: ADD, Left: lhs, Right: &Lit{Val: "1"}}
+	} else if p.consume(DEC) {
+		rhs = &Binary{Kind: SUB, Left: lhs, Right: &Lit{Val: "1"}}
 	} else if p.consume(OR_ASSIGN) {
 		rhs = &Binary{Kind: OR, Left: lhs, Right: p.expr()}
 	} else if p.consume(AND_ASSIGN) {

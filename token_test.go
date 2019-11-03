@@ -66,6 +66,8 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte("*="), Token{Kind: MUL_ASSIGN, Val: ""}},
 		{[]byte("/="), Token{Kind: DIV_ASSIGN, Val: ""}},
 		{[]byte("%="), Token{Kind: REM_ASSIGN, Val: ""}},
+		{[]byte("++"), Token{Kind: INC, Val: ""}},
+		{[]byte("--"), Token{Kind: DEC, Val: ""}},
 		{[]byte("("), Token{Kind: LPAREN, Val: ""}},
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 		{[]byte("{"), Token{Kind: LBRACE, Val: ""}},
