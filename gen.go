@@ -9,8 +9,10 @@ func emit(s string) {
 func lgen(ast *Ast, e Expr) {
 	switch v := e.(type) {
 	case *Ident:
+		sym, found := ast.CurrentScope.LookUpSymbol(v.Name)
+		_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", v.Name, ast.CurrentScope.Name))
 		emit("mov rax, rbp")
-		fmt.Printf("  sub rax, %d\n", ast.Scope.Symbols[v.Name].Offset)
+		fmt.Printf("  sub rax, %d\n", sym.Offset)
 		emit("push rax")
 	default:
 		panic("gen.go : invalid lgen")
@@ -106,7 +108,7 @@ func gen(ast *Ast, n Node) {
 		fmt.Printf("%s:\n", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		fmt.Printf("  sub rsp, %d\n", ast.Scope.frameSize())
+		fmt.Printf("  sub rsp, %d\n", ast.TopScope.Children[0].frameSize())
 		gen(ast, v.Body)
 		emit("mov rax, 0")
 		emit("mov rsp, rbp")
@@ -124,10 +126,11 @@ func gen(ast *Ast, n Node) {
 		emit("ret")
 
 	case *BlockStmt:
+		ast.scopeDown()
 		for _, stmt := range v.List {
 			gen(ast, stmt)
 		}
-
+		ast.scopeUp()
 	case *IfStmt:
 		genExpr(ast, v.Cond)
 		emit("pop rax")

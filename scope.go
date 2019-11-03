@@ -3,13 +3,15 @@ package main
 import "fmt"
 
 const (
-	IdentIsType   = "sema.go : %s is defined as type"
-	UndefinedType = "sema.go : %s is undefined as type"
+	IdentIsType      = "%s is defined as type"
+	DuplicatedSymbol = "%s is already defined"
+	UndefinedType    = "%s is undefined as type"
 )
 
 type Scope struct {
 	Name     string
 	Outer    *Scope
+	Children []*Scope
 	DeclType map[string]*Type
 	Symbols  map[string]*Symbol
 }
@@ -43,9 +45,14 @@ func (s *Scope) LookUpSymbol(name string) (*Symbol, bool) {
 }
 
 func (s *Scope) RegisterSymbol(name string, typ *Type) error {
+	_, isTypeName := builtinTypes[name]
+	if isTypeName {
+		return fmt.Errorf(IdentIsType, name)
+	}
+
 	_, found := s.LookUpSymbol(name)
 	if found {
-		return fmt.Errorf(IdentIsType, name)
+		return fmt.Errorf(DuplicatedSymbol, name)
 	}
 
 	s.Symbols[name] = &Symbol{

@@ -5,8 +5,11 @@ import (
 )
 
 func makeAst() *Ast {
+	universe := NewScope("__universe", nil)
+	universe.DeclType = builtinTypes
 	return &Ast{
-		Scope: NewScope("", nil),
+		CurrentScope: universe,
+		TopScope:     universe,
 	}
 }
 
@@ -20,8 +23,8 @@ func TestSema_IdentIsTypeName(t *testing.T) {
 		},
 	}
 
-	err := WalkAst(ast)
-	if err == nil {
+	ast.walkNode(ast.Nodes[0])
+	if len(ast.semanticErrors) == 0 {
 		t.Fail()
 	}
 }

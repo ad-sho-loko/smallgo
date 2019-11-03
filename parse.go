@@ -334,6 +334,5 @@ func (p *Parser) ParseFile(scope *Scope) *Ast {
 
 	return &Ast{
 		Nodes: nodes,
-		Scope: NewScope("file_scope", scope),
 	}
 }

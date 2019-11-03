@@ -1,8 +1,29 @@
 package main
 
 type Ast struct {
-	Nodes []Node
-	Scope *Scope
+	Nodes          []Node
+	TopScope       *Scope
+	CurrentScope   *Scope
+	semanticErrors []error
+}
+
+func (ast *Ast) createScope(name string) {
+	scope := NewScope(name, ast.CurrentScope)
+	ast.CurrentScope.Children = append(ast.CurrentScope.Children, scope)
+	ast.CurrentScope = scope
+}
+
+func (ast *Ast) exitScope() {
+	ast.CurrentScope = ast.CurrentScope.Outer
+}
+
+func (ast *Ast) scopeDown() {
+	ast.CurrentScope = ast.CurrentScope.Children[0]
+}
+
+func (ast *Ast) scopeUp() {
+	ast.CurrentScope = ast.CurrentScope.Outer
+	ast.CurrentScope.Children = ast.CurrentScope.Children[1:]
 }
 
 type Node interface {

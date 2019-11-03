@@ -23,9 +23,14 @@ func main() {
 
 	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
 	ast := NewParser(tokens).ParseFile(universe)
+	ast.CurrentScope = universe
+	ast.TopScope = universe
+
 	err := WalkAst(ast)
+
 	if err != nil {
 		panic(err)
 	}
+
 	Gen(ast)
 }
