@@ -83,6 +83,7 @@ type (
 type (
 	ValueSpec struct {
 		Type       *Type
+		TypeIdent  *Ident
 		Names      []*Ident
 		InitValues []Expr
 	}

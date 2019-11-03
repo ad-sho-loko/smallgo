@@ -180,15 +180,15 @@ func (p *Parser) assign() *AssignStmt {
 		rhs = &Binary{Kind: SHL, Left: lhs, Right: p.expr()}
 	} else if p.consume(SHR_ASSIGN) {
 		rhs = &Binary{Kind: SHR, Left: lhs, Right: p.expr()}
-	} else if p.consume(ADD_ASSIGN){
+	} else if p.consume(ADD_ASSIGN) {
 		rhs = &Binary{Kind: ADD, Left: lhs, Right: p.expr()}
-	} else if p.consume(SUB_ASSIGN){
+	} else if p.consume(SUB_ASSIGN) {
 		rhs = &Binary{Kind: SUB, Left: lhs, Right: p.expr()}
-	} else if p.consume(MUL_ASSIGN){
+	} else if p.consume(MUL_ASSIGN) {
 		rhs = &Binary{Kind: MUL, Left: lhs, Right: p.expr()}
-	} else if p.consume(DIV_ASSIGN){
+	} else if p.consume(DIV_ASSIGN) {
 		rhs = &Binary{Kind: DIV, Left: lhs, Right: p.expr()}
-	} else if p.consume(REM_ASSIGN){
+	} else if p.consume(REM_ASSIGN) {
 		rhs = &Binary{Kind: REM, Left: lhs, Right: p.expr()}
 	}
 
@@ -198,28 +198,44 @@ func (p *Parser) assign() *AssignStmt {
 	}
 }
 
-func (p *Parser) decl() *DeclStmt {
+// https://golang.org/ref/spec#Variable_declarations
+func (p *Parser) varDecl() *DeclStmt {
 	ident := p.expr().(*Ident)
-	p.expect(ASSIGN)
+
+	var specs []Spec
+	if p.consume(ASSIGN) {
+		// ex ) var x = 2
+		initValues := p.expr()
+		spec := &ValueSpec{
+			Type:       NewInt(),
+			Names:      []*Ident{ident},
+			InitValues: []Expr{initValues},
+		}
+		specs = append(specs, spec)
+	} else if p.peek().Kind == IDENT {
+		// ex ) var x int
+		typeName := p.expr().(*Ident)
+		spec := &ValueSpec{
+			TypeIdent: typeName,
+			Names:     []*Ident{ident},
+		}
+		specs = append(specs, spec)
+	}
+
 	return &DeclStmt{
 		Decl: &GenDecl{
-			Kind: VAR,
-			Specs: []Spec{
-				&ValueSpec{
-					Type:       NewInt(),
-					Names:      []*Ident{ident},
-					InitValues: []Expr{p.expr()},
-				},
-			},
+			Kind:  VAR,
+			Specs: specs,
 		},
 	}
+
 }
 
 func (p *Parser) stmt() Stmt {
 	if p.consume(RETURN) {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
 	} else if p.consume(VAR) {
-		return p.decl()
+		return p.varDecl()
 	} else if p.peek().Kind == IDENT {
 		return p.assign()
 	}

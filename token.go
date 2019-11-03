@@ -182,7 +182,7 @@ func (t *Tokenizer) switch4(ch byte, kind1, kind2, kind3, kind4 TokenKind) Token
 func (t *Tokenizer) readString() *Token {
 	s := ""
 
-	for ; !t.isEof() && t.isLetter(t.peek()); t.pos++ {
+	for ; !t.isEof() && (t.isLetter(t.peek()) || t.isDigit(t.peek())); t.pos++ {
 		s += string(t.peek())
 	}
 

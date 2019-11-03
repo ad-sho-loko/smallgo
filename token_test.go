@@ -31,6 +31,7 @@ func TestTokenize_String(t *testing.T) {
 		{[]byte("var"), Token{Kind: VAR, Val: ""}},
 		{[]byte("return"), Token{Kind: RETURN, Val: ""}},
 		{[]byte("x"), Token{Kind: IDENT, Val: "x"}},
+		{[]byte("int64"), Token{Kind: IDENT, Val: "int64"}},
 		// {[]byte("_abc"), Token{Kind: IDENT, Val: "_abc"}},
 		// {[]byte("a_b_c_"), Token{Kind: IDENT, Val: "_abc"}},
 	}

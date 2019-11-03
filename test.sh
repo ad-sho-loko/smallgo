@@ -50,6 +50,9 @@ try 6 'var x = 8 x -= 2 return x'
 try 16 'var x = 8 x *= 2 return x'
 try 4 'var x = 8 x /= 2 return x'
 try 0 'var x = 8 x %= 2 return x'
-# try 15 'var x int x = 15 return x'
+try 15 'var x int x = 15 return x'
+try 15 'var x1 int x1 = 15 return x1'
+try 0 'var x int return x'
+try 15 'var x int64 x = 15 return x'
 
 echo OK

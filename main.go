@@ -20,6 +20,9 @@ func main() {
 
 	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
 	ast := NewParser(tokens).Parse()
-	WalkAst(ast)
+	err := WalkAst(ast)
+	if err != nil {
+		panic(err)
+	}
 	Gen(ast)
 }
