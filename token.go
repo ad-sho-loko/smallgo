@@ -14,6 +14,13 @@ type Token struct {
 	Val  string
 }
 
+func (t Token) String() string {
+	if t.Val == "" {
+		return fmt.Sprintf("(%s)", tokenString[t.Kind])
+	}
+	return fmt.Sprintf("(%s `%s`)", tokenString[t.Kind], t.Val)
+}
+
 type TokenKind uint
 
 const (

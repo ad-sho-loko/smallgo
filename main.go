@@ -12,6 +12,18 @@ func usage() {
 	fmt.Println(help)
 }
 
+func parseOption(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+
+	if args[0] == "--debug" {
+		return true
+	}
+
+	return false
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		usage()
@@ -21,8 +33,10 @@ func main() {
 	universe := NewScope("__universe", nil)
 	universe.DeclType = builtinTypes
 
+	isTrace := parseOption(os.Args[2:])
+
 	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
-	ast := NewParser(tokens).ParseFile(universe)
+	ast := NewParser(tokens, isTrace).ParseFile(universe)
 	ast.CurrentScope = universe
 	ast.TopScope = universe
 

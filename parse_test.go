@@ -62,7 +62,7 @@ func TestParse_Add(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.expr()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -96,7 +96,7 @@ func TestParse_AddPolynomial(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.expr()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -121,7 +121,7 @@ func TestParse_Mul(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.expr()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -152,7 +152,7 @@ func TestParse_Precedence(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.expr()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -185,7 +185,7 @@ func TestParse_Paren(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.expr()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -209,7 +209,7 @@ func TestParse_ReturnStmt(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.stmt()
 	assertNodeWalk(t, ast, test.want[0])
 }
@@ -244,7 +244,7 @@ func TestParse_FuncDecl(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.toplevel()
 	assertFunc(t, ast, test.want)
 }
@@ -265,7 +265,7 @@ func TestParse_ExprStmt(t *testing.T) {
 		},
 	}
 
-	p := NewParser(test.b)
+	p := NewParser(test.b, false)
 	ast := p.stmt()
 	assertNodeWalk(t, ast, test.want)
 }
@@ -286,7 +286,7 @@ func TestParse_ReadField(t *testing.T) {
 			Type:  &Ident{Name: "int"},
 		},
 	}
-	f := NewParser(test.b).readField()
+	f := NewParser(test.b, false).readField()
 	assert.Equal(t, test.want, f)
 
 	// (x, y int)
@@ -307,7 +307,7 @@ func TestParse_ReadField(t *testing.T) {
 		},
 	}
 
-	f = NewParser(test.b).readField()
+	f = NewParser(test.b, false).readField()
 	assert.Equal(t, test.want, f)
 
 	// (int)
@@ -325,6 +325,6 @@ func TestParse_ReadField(t *testing.T) {
 		},
 	}
 
-	f = NewParser(test.b).readField()
+	f = NewParser(test.b, false).readField()
 	assert.Equal(t, test.want, f)
 }

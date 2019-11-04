@@ -1,17 +1,47 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Parser struct {
 	tokens []*Token
 	pos    int
+
+	// for trace
+	trace  bool
+	indent int
 }
 
-func NewParser(tokens []*Token) *Parser {
+func NewParser(tokens []*Token, isTrace bool) *Parser {
 	return &Parser{
 		tokens: tokens,
 		pos:    0,
+		trace:  isTrace,
+		indent: 0,
 	}
+}
+
+func printTrace(p *Parser, msg string) {
+	for i := p.indent; i > 0; i-- {
+		fmt.Fprintf(os.Stderr, " ")
+	}
+
+	fmt.Fprintf(os.Stderr, msg)
+	fmt.Fprintf(os.Stderr, "(%d;%v)", p.pos, p.tokens[p.pos].Kind)
+	fmt.Fprintf(os.Stderr, "  %s", p.tokens[p.pos:])
+	fmt.Fprintf(os.Stderr, "\n")
+}
+
+func trace(p *Parser, msg string) *Parser {
+	printTrace(p, msg)
+	p.indent++
+	return p
+}
+
+func un(p *Parser) {
+	p.indent--
 }
 
 func (p *Parser) peek() *Token {
@@ -82,6 +112,10 @@ func (p *Parser) ident() *Ident {
 }
 
 func (p *Parser) factor() Expr {
+	if p.trace {
+		defer un(trace(p, "factor"))
+	}
+
 	if p.peek().Kind == NUMBER {
 		tkn := p.expect(NUMBER)
 		return &Lit{Kind: tkn.Kind, Val: tkn.Val}
@@ -100,6 +134,10 @@ func (p *Parser) factor() Expr {
 }
 
 func (p *Parser) primary() Expr {
+	if p.trace {
+		defer un(trace(p, "primary"))
+	}
+
 	if p.consume(LPAREN) {
 		n := p.expr()
 		p.expect(RPAREN)
@@ -123,6 +161,10 @@ func (p *Parser) primary() Expr {
 }
 
 func (p *Parser) unary() Expr {
+	if p.trace {
+		defer un(trace(p, "unary"))
+	}
+
 	if p.consume(ADD) {
 	} else if p.consume(SUB) {
 		return &Binary{Kind: SUB, Left: &Lit{Kind: NUMBER, Val: "0"}, Right: p.primary()}
@@ -132,6 +174,10 @@ func (p *Parser) unary() Expr {
 }
 
 func (p *Parser) mul() Expr {
+	if p.trace {
+		defer un(trace(p, "mul"))
+	}
+
 	n := p.unary()
 
 	for {
@@ -162,6 +208,10 @@ func (p *Parser) mul() Expr {
 }
 
 func (p *Parser) add() Expr {
+	if p.trace {
+		defer un(trace(p, "add"))
+	}
+
 	n := p.mul()
 	for {
 		if p.consume(ADD) {
@@ -187,6 +237,10 @@ func (p *Parser) add() Expr {
 }
 
 func (p *Parser) rel() Expr {
+	if p.trace {
+		defer un(trace(p, "rel"))
+	}
+
 	n := p.add()
 	for {
 		if p.consume(LSS) {
@@ -212,6 +266,10 @@ func (p *Parser) rel() Expr {
 }
 
 func (p *Parser) eq() Expr {
+	if p.trace {
+		defer un(trace(p, "eq"))
+	}
+
 	n := p.rel()
 	for {
 		if p.consume(EQL) {
@@ -229,6 +287,10 @@ func (p *Parser) eq() Expr {
 }
 
 func (p *Parser) binary() Expr {
+	if p.trace {
+		defer un(trace(p, "binary"))
+	}
+
 	n := p.eq()
 	for {
 		if p.consume(LOR) {
@@ -246,11 +308,19 @@ func (p *Parser) binary() Expr {
 }
 
 func (p *Parser) expr() Expr {
+	if p.trace {
+		defer un(trace(p, "expr"))
+	}
+
 	return p.binary()
 }
 
 // ex) x = 3
 func (p *Parser) assign() Stmt {
+	if p.trace {
+		defer un(trace(p, "assign"))
+	}
+
 	lhs := p.expr()
 
 	var rhs Expr
@@ -290,6 +360,10 @@ func (p *Parser) assign() Stmt {
 
 // https://golang.org/ref/spec#Variable_declarations
 func (p *Parser) varDecl() *DeclStmt {
+	if p.trace {
+		defer un(trace(p, "varDecl"))
+	}
+
 	ident := p.expr().(*Ident)
 
 	var specs []Spec
@@ -321,6 +395,10 @@ func (p *Parser) varDecl() *DeclStmt {
 }
 
 func (p *Parser) forStmt() *ForStmt {
+	if p.trace {
+		defer un(trace(p, "forStmt"))
+	}
+
 	forStmt := &ForStmt{}
 
 	// ex ) for { x = 5 }
@@ -358,6 +436,10 @@ func (p *Parser) forStmt() *ForStmt {
 }
 
 func (p *Parser) ifStmt() *IfStmt {
+	if p.trace {
+		defer un(trace(p, "ifStmt"))
+	}
+
 	ifStmt := &IfStmt{}
 	ifStmt.Cond = p.expr()
 	ifStmt.Then = p.stmtBlock()
@@ -372,6 +454,10 @@ func (p *Parser) ifStmt() *IfStmt {
 }
 
 func (p *Parser) simpleStmt() Stmt {
+	if p.trace {
+		defer un(trace(p, "simpleStmt"))
+	}
+
 	if p.consume(RETURN) {
 		return &ReturnStmt{Exprs: []Expr{p.expr()}}
 	}
@@ -380,6 +466,10 @@ func (p *Parser) simpleStmt() Stmt {
 }
 
 func (p *Parser) stmt() Stmt {
+	if p.trace {
+		defer un(trace(p, "stmt"))
+	}
+
 	if p.consume(IF) {
 		return p.ifStmt()
 	}
@@ -396,6 +486,10 @@ func (p *Parser) stmt() Stmt {
 }
 
 func (p *Parser) stmtBlock() *BlockStmt {
+	if p.trace {
+		defer un(trace(p, "stmtBlock"))
+	}
+
 	p.expect(LBRACE)
 	b := &BlockStmt{}
 	for !p.consume(RBRACE) {
@@ -405,6 +499,10 @@ func (p *Parser) stmtBlock() *BlockStmt {
 }
 
 func (p *Parser) toplevel() *FuncDecl {
+	if p.trace {
+		defer un(trace(p, "toplevel"))
+	}
+
 	funcDecl := FuncDecl{}
 	funcDecl.FuncType = &FuncType{}
 
@@ -430,6 +528,10 @@ func (p *Parser) toplevel() *FuncDecl {
 }
 
 func (p *Parser) ParseFile(scope *Scope) *Ast {
+	if p.trace {
+		un(trace(p, "PARSE START"))
+	}
+
 	var nodes []Node
 
 	for p.peek().Kind != EOF {
