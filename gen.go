@@ -8,13 +8,23 @@ func emit(s string) {
 	fmt.Println("  " + s)
 }
 
+func emitf(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	fmt.Println("  " + s)
+}
+
+func emitfNoIndent(format string, v ...interface{}) {
+	s := fmt.Sprintf(format, v...)
+	fmt.Println(s)
+}
+
 func lgen(ast *Ast, e Expr) {
 	switch v := e.(type) {
 	case *Ident:
 		sym, found := ast.CurrentScope.LookUpSymbol(v.Name)
 		_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", v.Name, ast.CurrentScope.Name))
 		emit("mov rax, rbp")
-		fmt.Printf("  sub rax, %d\n", sym.Offset)
+		emitf("sub rax, %d", sym.Offset)
 		emit("push rax")
 	default:
 		panic("gen.go : invalid lgen")
@@ -31,9 +41,9 @@ func genExpr(ast *Ast, expr Expr) {
 		for i, e := range e.Args {
 			genExpr(ast, e)
 			emit("pop rax")
-			fmt.Printf("  mov %s, rax\n", argregs[i])
+			emitf("mov %s, rax", argregs[i])
 		}
-		fmt.Printf("  call %s\n", e.FuncName)
+		emitf("call %s", e.FuncName)
 		emit("push rax")
 
 	case *Ident:
@@ -43,7 +53,7 @@ func genExpr(ast *Ast, expr Expr) {
 		emit("push rax")
 
 	case *Lit:
-		fmt.Printf("  push %s\n", e.Val)
+		emitf("push %s", e.Val)
 
 	case *Binary:
 		genExpr(ast, e.Left)
@@ -120,16 +130,17 @@ func gen(ast *Ast, n Node) {
 
 	switch v := n.(type) {
 	case *FuncDecl:
-		fmt.Printf("%s:\n", v.FuncName.Name)
+		emitfNoIndent("%s:", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		fmt.Printf("  sub rsp, %d\n", ast.TopScope.frameSize()+ast.TopScope.Children[0].frameSize())
-
+		emitf("sub rsp, %d", ast.TopScope.frameSize()+ast.TopScope.Children[0].frameSize())
+		argNum := 0
 		for _, arg := range v.FuncType.Args {
-			for i, name := range arg.Names {
+			for _, name := range arg.Names {
 				sym, found := ast.CurrentScope.LookUpSymbol(name.Name)
 				_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", name.Name, ast.CurrentScope.Name))
-				fmt.Printf("  mov [rsp+%d], %s\n", sym.Offset-8, argregs[i])
+				emitf("mov [rbp-%d], %s", sym.Offset, argregs[argNum])
+				argNum++
 			}
 		}
 
@@ -165,27 +176,27 @@ func gen(ast *Ast, n Node) {
 		l2 := ast.L()
 
 		if v.Else == nil {
-			emit("je .LEND" + l1)
+			emitf("je .LEND%s", l1)
 		} else {
-			emit("je .LELSE" + l2)
+			emitf("je .LELSE%s", l2)
 		}
 
 		gen(ast, v.Then)
 
 		if v.Else != nil {
 			emit("jmp .LEND" + l1)
-			fmt.Println(".LELSE" + l2 + ":")
+			emitfNoIndent(".LELSE%s:", l2)
 			gen(ast, v.Else)
 		}
 
-		fmt.Println(".LEND" + l1 + ":")
+		emitfNoIndent(".LEND%s:", l1)
 
 	case *ForStmt:
 		gen(ast, v.Init)
 		l1 := ast.L()
 		l2 := ast.L()
 
-		emit(".LINIT" + l1 + ":")
+		emitfNoIndent(".LINIT%s:", l1)
 		if v.Cond != nil {
 			genExpr(ast, v.Cond)
 			emit("pop rax")
@@ -197,7 +208,7 @@ func gen(ast *Ast, n Node) {
 
 		emit("jmp .LINIT" + l1)
 		if v.Cond != nil {
-			emit(".LEND" + l2 + ":")
+			emitfNoIndent(".LEND%s:", l2)
 		}
 
 	case *AssignStmt:
@@ -235,8 +246,8 @@ func gen(ast *Ast, n Node) {
 }
 
 func Gen(ast *Ast) {
-	fmt.Println(".intel_syntax noprefix")
-	fmt.Println(".global main")
+	emitfNoIndent(".intel_syntax noprefix")
+	emitfNoIndent(".global main")
 	fmt.Println()
 
 	for _, n := range ast.Nodes {

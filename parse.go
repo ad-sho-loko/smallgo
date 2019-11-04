@@ -47,6 +47,7 @@ func (p *Parser) readField() *Field {
 	var names []*Ident
 	var typ Expr
 
+	p.consume(COMMA)
 	names = append(names, p.ident())
 	for p.consume(COMMA) {
 		names = append(names, p.ident())

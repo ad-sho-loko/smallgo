@@ -215,7 +215,6 @@ func TestParse_ReturnStmt(t *testing.T) {
 }
 
 func TestParse_FuncDecl(t *testing.T) {
-	t.Skip()
 	test := struct {
 		b    []*Token
 		want *FuncDecl
