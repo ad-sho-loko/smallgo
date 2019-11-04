@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+func roundup(x, align int) int {
+	return (x + align - 1) & ^(align - 1)
+}
+
 func _assert(b bool, msg string) {
 	if !b {
 		_, _ = fmt.Fprintf(os.Stderr, "[Assertion Failed]\n")

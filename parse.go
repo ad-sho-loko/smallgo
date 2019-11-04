@@ -87,6 +87,11 @@ func (p *Parser) factor() Expr {
 		return &Lit{Kind: tkn.Kind, Val: tkn.Val}
 	}
 
+	if p.peek().Kind == CHAR {
+		tkn := p.expect(CHAR)
+		return &Lit{Kind: CHAR, Val: tkn.Val}
+	}
+
 	if p.peek().Kind == IDENT {
 		return p.ident()
 	}

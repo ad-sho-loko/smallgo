@@ -88,6 +88,9 @@ try 5 'func main() int { return f(5) } func f(n int) int { return 5 }'
 try 6 'func main() int { return f(5, 1) } func f(n, m int) int { return n+m }'
 try 15 'func main() int { return f(10, 2, 3) } func f(a int, b int, c int) int { return a+b+c }'
 try 15 'func main() int { return f(10, 2, 3) } func f(a int, b, c int) int { return a+b+c }'
+try 97 "func main() int { var x byte x = 'a' return x}"
+try 97 "func main() int { var x byte x = 'a' return F(x) } func F(c byte){ return c }"
+try 98 "func main() int { var x byte x = 'a' return F(x) } func F(c byte){ return c+1 }"
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'

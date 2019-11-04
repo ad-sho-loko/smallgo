@@ -8,25 +8,34 @@ type Type struct {
 type TypeKind uint
 
 const (
-	INT TypeKind = iota + 1
-	FUNCTION
+	Int TypeKind = iota + 1
+	Byte
+	Function
 )
 
 var builtinTypes = map[string]*Type{
 	"int":   NewInt(),
 	"int64": NewInt(),
+	"byte":  NewByte(),
 }
 
 func NewInt() *Type {
 	return &Type{
-		Kind: INT,
+		Kind: Int,
 		Size: 8,
+	}
+}
+
+func NewByte() *Type {
+	return &Type{
+		Kind: Byte,
+		Size: 1,
 	}
 }
 
 func NewFunc() *Type {
 	return &Type{
-		Kind: FUNCTION,
+		Kind: Function,
 		Size: 0,
 	}
 }

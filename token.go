@@ -61,6 +61,7 @@ const (
 	ELSE                 // else
 	FOR                  // for
 	IDENT
+	CHAR
 	EOF
 )
 
@@ -109,6 +110,7 @@ var tokenString = map[TokenKind]string{
 	ELSE:       "ELSE",
 	FOR:        "FOR",
 	IDENT:      "IDENT",
+	CHAR:       "CHAR",
 	EOF:        "EOF",
 }
 
@@ -348,6 +350,14 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 		case ';':
 			tokens = append(tokens, t.newToken(SEMICOLON, ""))
+			t.pos++
+		case '\'':
+			t.pos++
+			tokens = append(tokens, t.newToken(CHAR, string(t.peek())))
+			t.pos++
+			if t.peek() != '\'' {
+				panic("' not closed")
+			}
 			t.pos++
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))

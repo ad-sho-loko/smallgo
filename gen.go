@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 var argregs = []string{"rdi", "rsi", "rdx", "rcx", "r8", "r9"}
+var argregs8 = []string{"dil", "sil", "dl", "cl", "r8b", "r9b"}
 
 func emit(s string) {
 	fmt.Println("  " + s)
@@ -16,6 +17,20 @@ func emitf(format string, v ...interface{}) {
 func emitfNoIndent(format string, v ...interface{}) {
 	s := fmt.Sprintf(format, v...)
 	fmt.Println(s)
+}
+
+func reg(i, size int) string {
+	if size == 1 {
+		return argregs8[i]
+	}
+	return argregs[i]
+}
+
+func ptr(size int) string {
+	if size == 1 {
+		return "BYTE PTR "
+	}
+	return ""
 }
 
 func lgen(ast *Ast, e Expr) {
@@ -38,8 +53,8 @@ func genExpr(ast *Ast, expr Expr) {
 
 	switch e := expr.(type) {
 	case *CallFunc:
-		for i, e := range e.Args {
-			genExpr(ast, e)
+		for i, arg := range e.Args {
+			genExpr(ast, arg)
 			emit("pop rax")
 			emitf("mov %s, rax", argregs[i])
 		}
@@ -53,7 +68,11 @@ func genExpr(ast *Ast, expr Expr) {
 		emit("push rax")
 
 	case *Lit:
-		emitf("push %s", e.Val)
+		if e.Kind == CHAR {
+			emitf("push %d", e.Val[0])
+		} else {
+			emitf("push %s", e.Val)
+		}
 
 	case *Binary:
 		genExpr(ast, e.Left)
@@ -133,13 +152,15 @@ func gen(ast *Ast, n Node) {
 		emitfNoIndent("%s:", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		emitf("sub rsp, %d", ast.TopScope.frameSize()+ast.TopScope.Children[0].frameSize())
+		frameSize := ast.TopScope.frameSize() + ast.TopScope.Children[0].frameSize()
+		emitf("sub rsp, %d", roundup(frameSize, 8))
 		argNum := 0
 		for _, arg := range v.FuncType.Args {
 			for _, name := range arg.Names {
 				sym, found := ast.CurrentScope.LookUpSymbol(name.Name)
 				_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", name.Name, ast.CurrentScope.Name))
-				emitf("mov [rbp-%d], %s", sym.Offset, argregs[argNum])
+				// emitf("mov [rbp-%d], %s", sym.Offset, argregs[argNum])
+				emitf("mov %s [rbp-%d], %s", ptr(sym.Type.Size), sym.Offset, reg(argNum, sym.Type.Size))
 				argNum++
 			}
 		}
