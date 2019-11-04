@@ -24,101 +24,109 @@ func (t Token) String() string {
 type TokenKind uint
 
 const (
-	NUMBER     TokenKind = iota + 1
-	ADD                  // +
-	SUB                  // -
-	MUL                  // *
-	DIV                  // /
-	REM                  // %
-	OR                   // |
-	OR_ASSIGN            // |=
-	AND                  // &
-	AND_ASSIGN           // &=
-	ADD_ASSIGN           // +=
-	SUB_ASSIGN           // -=
-	MUL_ASSIGN           // *=
-	DIV_ASSIGN           // /=
-	REM_ASSIGN           // %=
-	INC                  // ++
-	DEC                  // --
-	LPAREN               // (
-	RPAREN               // )
-	LBRACE               // {
-	RBRACE               // }
-	COMMA                // ,
-	SEMICOLON            // ;
-	ASSIGN               // =
-	EQL                  // ==
-	SHL                  // <<
-	SHL_ASSIGN           // <<=
-	SHR                  // >>
-	SHR_ASSIGN           // >>=
-	NEQ                  // !=
-	NOT                  // !
-	LOR                  // ||
-	LAND                 // &&
-	LSS                  // <
-	LEQ                  // <=
-	GTR                  // >
-	GEQ                  // >=
-	VAR                  // var
-	RETURN               // return
-	FUNC                 // func
-	IF                   // if
-	ELSE                 // else
-	FOR                  // for
+	NUMBER         TokenKind = iota + 1
+	ADD                      // +
+	SUB                      // -
+	MUL                      // *
+	DIV                      // /
+	REM                      // %
+	OR                       // |
+	XOR                      // ^
+	OR_ASSIGN                // |=
+	AND                      // &
+	AND_ASSIGN               // &=
+	ADD_ASSIGN               // +=
+	SUB_ASSIGN               // -=
+	MUL_ASSIGN               // *=
+	DIV_ASSIGN               // /=
+	REM_ASSIGN               // %=
+	XOR_ASSIGN               // ^=
+	INC                      // ++
+	DEC                      // --
+	LPAREN                   // (
+	RPAREN                   // )
+	LBRACE                   // {
+	RBRACE                   // }
+	COMMA                    // ,
+	SEMICOLON                // ;
+	ASSIGN                   // =
+	EQL                      // ==
+	SHL                      // <<
+	SHL_ASSIGN               // <<=
+	SHR                      // >>
+	SHR_ASSIGN               // >>=
+	NEQ                      // !=
+	NOT                      // !
+	LOR                      // ||
+	LAND                     // &&
+	AND_NOT                  // &^
+	AND_NOT_ASSIGN           // &^=
+	LSS                      // <
+	LEQ                      // <=
+	GTR                      // >
+	GEQ                      // >=
+	VAR                      // var
+	RETURN                   // return
+	FUNC                     // func
+	IF                       // if
+	ELSE                     // else
+	FOR                      // for
 	IDENT
 	CHAR
 	EOF
 )
 
 var tokenString = map[TokenKind]string{
-	NUMBER:     "NUMBER",
-	ADD:        "ADD",
-	SUB:        "SUB",
-	MUL:        "MUL",
-	DIV:        "DIV",
-	REM:        "REM",
-	OR:         "OR",
-	OR_ASSIGN:  "OR_ASSIGN",
-	AND:        "AND",
-	AND_ASSIGN: "AND_ASSIGN",
-	ADD_ASSIGN: "ADD_ASSIGN",
-	SUB_ASSIGN: "SUB_ASSIGN",
-	MUL_ASSIGN: "MUL_ASSIGN",
-	DIV_ASSIGN: "QUO_ASSIGN",
-	REM_ASSIGN: "REM_ASSIGN",
-	INC:        "INC",
-	DEC:        "DEC",
-	LPAREN:     "LPAREN",
-	RPAREN:     "RPAREN",
-	LBRACE:     "LBRACE",
-	RBRACE:     "RBRACE",
-	COMMA:      "COMMA",
-	SEMICOLON:  "SEMICOLON",
-	ASSIGN:     "ASSIGN",
-	EQL:        "EQL",
-	SHL:        "SHL",
-	SHL_ASSIGN: "SHL_ASSIGN",
-	SHR:        "SHR",
-	SHR_ASSIGN: "SHR_ASSIGN",
-	NEQ:        "NEQ",
-	NOT:        "NOT",
-	LOR:        "LOR",
-	LAND:       "LAND",
-	LSS:        "LSS",
-	LEQ:        "LEQ",
-	GTR:        "GTR",
-	GEQ:        "GTR",
-	VAR:        "VAR",
-	RETURN:     "RETURN",
-	FUNC:       "FUNC",
-	IF:         "IF",
-	ELSE:       "ELSE",
-	FOR:        "FOR",
-	IDENT:      "IDENT",
-	CHAR:       "CHAR",
-	EOF:        "EOF",
+	NUMBER:         "NUMBER",
+	ADD:            "ADD",
+	SUB:            "SUB",
+	MUL:            "MUL",
+	DIV:            "DIV",
+	REM:            "REM",
+	XOR:            "XOR",
+	OR:             "OR",
+	OR_ASSIGN:      "OR_ASSIGN",
+	AND:            "AND",
+	AND_ASSIGN:     "AND_ASSIGN",
+	ADD_ASSIGN:     "ADD_ASSIGN",
+	SUB_ASSIGN:     "SUB_ASSIGN",
+	MUL_ASSIGN:     "MUL_ASSIGN",
+	DIV_ASSIGN:     "QUO_ASSIGN",
+	REM_ASSIGN:     "REM_ASSIGN",
+	XOR_ASSIGN:     "XOR_ASSIGN",
+	INC:            "INC",
+	DEC:            "DEC",
+	LPAREN:         "LPAREN",
+	RPAREN:         "RPAREN",
+	LBRACE:         "LBRACE",
+	RBRACE:         "RBRACE",
+	COMMA:          "COMMA",
+	SEMICOLON:      "SEMICOLON",
+	ASSIGN:         "ASSIGN",
+	EQL:            "EQL",
+	SHL:            "SHL",
+	SHL_ASSIGN:     "SHL_ASSIGN",
+	SHR:            "SHR",
+	SHR_ASSIGN:     "SHR_ASSIGN",
+	NEQ:            "NEQ",
+	NOT:            "NOT",
+	LOR:            "LOR",
+	LAND:           "LAND",
+	AND_NOT:        "AND_NOT",
+	AND_NOT_ASSIGN: "AND_NOT_ASSIGN",
+	LSS:            "LSS",
+	LEQ:            "LEQ",
+	GTR:            "GTR",
+	GEQ:            "GTR",
+	VAR:            "VAR",
+	RETURN:         "RETURN",
+	FUNC:           "FUNC",
+	IF:             "IF",
+	ELSE:           "ELSE",
+	FOR:            "FOR",
+	IDENT:          "IDENT",
+	CHAR:           "CHAR",
+	EOF:            "EOF",
 }
 
 var keywords = map[string]TokenKind{
@@ -345,9 +353,19 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 			kind := t.switch3('|', OR, OR_ASSIGN, LOR)
 			tokens = append(tokens, t.newToken(kind, ""))
+		case '^':
+			t.pos++
+			kind := t.switch2(XOR, XOR_ASSIGN)
+			tokens = append(tokens, t.newToken(kind, ""))
 		case '&':
 			t.pos++
-			kind := t.switch3('&', AND, AND_ASSIGN, LAND)
+			var kind TokenKind
+			if !t.isEof() && t.peek() == '^' {
+				t.pos++
+				kind = t.switch2(AND_NOT, AND_NOT_ASSIGN)
+			} else {
+				kind = t.switch3('&', AND, AND_ASSIGN, LAND)
+			}
 			tokens = append(tokens, t.newToken(kind, ""))
 		case ',':
 			tokens = append(tokens, t.newToken(COMMA, ""))

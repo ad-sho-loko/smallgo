@@ -146,6 +146,11 @@ func genExpr(ast *Ast, expr Expr) {
 			emit("and rax, rdi")
 		case LAND:
 			emit("and rax, rdi")
+		case XOR:
+			emit("xor rax, rdi")
+		case AND_NOT:
+			emit("not rdi")
+			emit("and rax, rdi")
 		}
 		emit("push rax")
 	default:

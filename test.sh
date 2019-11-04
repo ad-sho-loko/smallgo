@@ -48,11 +48,11 @@ try 2 'func main() int { return 8 >> 2 }'
 try 8 'func main() int { return 1 << 3 }'
 try 1 'func main() int { return 1+2 > 1*1 }'
 try 1 'func main() int { return 1 == 1 > 0 && 2 == 0 <= (2+1) }'
+try 11 'func main() int { return 13 ^ 6 }'
+try 9 'func main() int { return 13 &^ 6 }'
 try 7 'func main() int { var x = 7 return x }'
 try 5 'func main() int { var x = 7 x = 5 return x }'
 try 15 'func main() int { var x = 5 var y = 10 return x+y }'
-try 8 'func main() int { var x = 2 x <<= 2 return x }'
-try 2 'func main() int { var x = 8 x >>= 2 return x }'
 try 10 'func main() int { var x = 8 x = x + 2 return x }'
 try 10 'func main() int { var x = 8 x += 2 return x }'
 try 9 'func main() int { var x = 8 x++ return x }'
@@ -63,6 +63,10 @@ try 4 'func main() int { var x = 8 x /= 2 return x }'
 try 0 'func main() int { var x = 8 x %= 2 return x }'
 try 10 'func main() int { var x = 8 x |= 2 return x }'
 try 2 'func main() int { var x = 7 x &= 2 return x }'
+try 8 'func main() int { var x = 2 x <<= 2 return x }'
+try 2 'func main() int { var x = 8 x >>= 2 return x }'
+try 11 'func main() int { var x = 13 x ^= 6 return x }'
+try 9 'func main() int { var x = 13 x &^= 6 return x }'
 try 15 'func main() int { var x int x = 15 return x }'
 try 15 'func main() int { var x1 int x1 = 15 return x1 }'
 try 0 'func main() int { var x int return x }'
@@ -94,6 +98,8 @@ try 98 "func main() int { var x byte x = 'a' return F(x) } func F(c byte){ retur
 try 99 "func main() int { var x byte x = 'a' return F(x, 2) } func F(c byte, i int){ return c+i }"
 try 10 'func main() int { var x int x = 10 var y *int y = &x return *y }'
 try 10 'func main() int { var x int x = 10 var y *int y = &x var z **int z = &y return **z }'
+try 97 "func main() int { var x byte x = 'a' var y *byte y = &x return *y }"
+try 1 "func main() int { var x byte x = 'a' var y *byte y = &x return y == y }"
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'
