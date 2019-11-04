@@ -17,7 +17,7 @@ func parseOption(args []string) bool {
 		return false
 	}
 
-	if args[0] == "--debug" {
+	if args[0] == "--trace" {
 		return true
 	}
 

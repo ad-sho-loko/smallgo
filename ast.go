@@ -115,6 +115,14 @@ type (
 		FuncName string
 		Args     []Expr
 	}
+
+	StarExpr struct {
+		X Expr
+	}
+
+	UnaryExpr struct {
+		X Expr
+	}
 )
 
 type (
@@ -160,11 +168,13 @@ func (e *ExprStmt) stmtNode()   {}
 func (i *IfStmt) stmtNode()     {}
 func (f *ForStmt) stmtNode()    {}
 
-func (l *Lit) exprNode()      {}
-func (b *Binary) exprNode()   {}
-func (i *Ident) exprNode()    {}
-func (c *CallFunc) exprNode() {}
-func (t *Type) exprNode()     {}
+func (l *Lit) exprNode()       {}
+func (b *Binary) exprNode()    {}
+func (i *Ident) exprNode()     {}
+func (c *CallFunc) exprNode()  {}
+func (s *StarExpr) exprNode()  {}
+func (u *UnaryExpr) exprNode() {}
+func (t *Type) exprNode()      {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

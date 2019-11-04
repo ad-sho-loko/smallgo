@@ -107,6 +107,17 @@ func (p *Parser) readFields() []*Field {
 }
 
 func (p *Parser) ident() *Ident {
+	// pointer type
+	if p.peek().Kind == MUL {
+		ptrs := ""
+		for p.consume(MUL) {
+			ptrs += "*"
+		}
+
+		tkn := p.expect(IDENT)
+		return &Ident{Name: ptrs + tkn.Val}
+	}
+
 	tkn := p.expect(IDENT)
 	return &Ident{Name: tkn.Val}
 }
@@ -166,8 +177,13 @@ func (p *Parser) unary() Expr {
 	}
 
 	if p.consume(ADD) {
+		// nop
 	} else if p.consume(SUB) {
 		return &Binary{Kind: SUB, Left: &Lit{Kind: NUMBER, Val: "0"}, Right: p.primary()}
+	} else if p.consume(MUL) {
+		return &StarExpr{X: p.expr()}
+	} else if p.consume(AND) {
+		return &UnaryExpr{X: p.expr()}
 	}
 
 	return p.primary()
@@ -364,7 +380,7 @@ func (p *Parser) varDecl() *DeclStmt {
 		defer un(trace(p, "varDecl"))
 	}
 
-	ident := p.expr().(*Ident)
+	ident := p.ident()
 
 	var specs []Spec
 	if p.consume(ASSIGN) {
@@ -376,9 +392,9 @@ func (p *Parser) varDecl() *DeclStmt {
 			InitValues: []Expr{initValues},
 		}
 		specs = append(specs, spec)
-	} else if p.peek().Kind == IDENT {
+	} else if p.peek().Kind == IDENT || p.peek().Kind == MUL {
 		// ex ) var x int
-		typeName := p.expr().(*Ident)
+		typeName := p.ident()
 		spec := &ValueSpec{
 			TypeIdent: typeName,
 			Names:     []*Ident{ident},

@@ -1,8 +1,9 @@
 package main
 
 type Type struct {
-	Kind TypeKind
-	Size int
+	Kind  TypeKind
+	Size  int
+	PtrOf *Type
 }
 
 type TypeKind uint
@@ -10,6 +11,7 @@ type TypeKind uint
 const (
 	Int TypeKind = iota + 1
 	Byte
+	Ptr
 	Function
 )
 
@@ -30,6 +32,14 @@ func NewByte() *Type {
 	return &Type{
 		Kind: Byte,
 		Size: 1,
+	}
+}
+
+func NewPointer(typ *Type) *Type {
+	return &Type{
+		Kind:  Ptr,
+		Size:  8,
+		PtrOf: typ,
 	}
 }
 

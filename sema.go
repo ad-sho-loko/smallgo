@@ -24,6 +24,12 @@ func (ast *Ast) walkExpr(expr Expr) {
 			ast.walkExpr(arg)
 		}
 
+	case *StarExpr:
+		ast.walkExpr(e.X)
+
+	case *UnaryExpr:
+		ast.walkExpr(e.X)
+
 	case *Lit:
 	}
 }
@@ -125,6 +131,8 @@ func (ast *Ast) walkNode(n Node) {
 		}
 
 		for _, ident := range typ.Names {
+			_assert(typ.Type != nil, "type must not be nil here")
+
 			err := ast.CurrentScope.RegisterSymbol(ident.Name, typ.Type)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)

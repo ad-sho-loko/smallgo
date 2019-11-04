@@ -341,17 +341,14 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 			kind := t.switch2(NOT, NEQ)
 			tokens = append(tokens, t.newToken(kind, ""))
-			t.pos++
 		case '|':
 			t.pos++
 			kind := t.switch3('|', OR, OR_ASSIGN, LOR)
 			tokens = append(tokens, t.newToken(kind, ""))
-			t.pos++
 		case '&':
 			t.pos++
 			kind := t.switch3('&', AND, AND_ASSIGN, LAND)
 			tokens = append(tokens, t.newToken(kind, ""))
-			t.pos++
 		case ',':
 			tokens = append(tokens, t.newToken(COMMA, ""))
 			t.pos++

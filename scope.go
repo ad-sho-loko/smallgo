@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 const (
 	IdentIsType      = "%s is defined as type"
@@ -63,16 +66,41 @@ func (s *Scope) RegisterSymbol(name string, typ *Type) error {
 	return nil
 }
 
+func wrapStar(n int, inner *Type) *Type {
+	if n == 0 {
+		return inner
+	}
+
+	return wrapStar(n-1, NewPointer(inner))
+}
+
+func unwrapStar(n int, typeName string) (int, string) {
+	if strings.HasPrefix(typeName, "*") {
+		return unwrapStar(n+1, typeName[1:])
+	}
+
+	return n, typeName
+}
+
 func (s *Scope) ResolveType(typeName string) (*Type, error) {
+	numOfStar := 0
+	unwrapTypeName := typeName
+	if strings.HasPrefix(typeName, "*") {
+		numOfStar, typeName = unwrapStar(0, typeName)
+	}
+
 	typ, found := s.DeclType[typeName]
 
 	if !found {
-
 		if s.Outer == nil {
 			return nil, fmt.Errorf(UndefinedType, typeName)
 		}
 
-		return s.Outer.ResolveType(typeName)
+		return s.Outer.ResolveType(unwrapTypeName)
+	}
+
+	if numOfStar > 0 {
+		return wrapStar(numOfStar, typ), nil
 	}
 
 	return typ, nil

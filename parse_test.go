@@ -232,7 +232,7 @@ func TestParse_FuncDecl(t *testing.T) {
 			{Kind: EOF, Val: ""},
 		},
 		want: &FuncDecl{
-			FuncName: &Ident{Name:"main"},
+			FuncName: &Ident{Name: "main"},
 			Body: &BlockStmt{
 				List: []Stmt{&ReturnStmt{
 					Exprs: []Expr{

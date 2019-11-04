@@ -38,14 +38,14 @@ func ptr(size int) string {
 	return ""
 }
 
-func lgen(ast *Ast, e Expr) {
+func lgenExpr(ast *Ast, e Expr) {
 	switch v := e.(type) {
 	case *Ident:
 		emit("mov rax, rbp")
 		emitf("sub rax, %d", v._Offset)
 		emit("push rax")
 	default:
-		panic("gen.go : invalid lgen")
+		panic("gen.go : invalid lgenExpr")
 	}
 }
 
@@ -66,7 +66,7 @@ func genExpr(ast *Ast, expr Expr) {
 
 	case *Ident:
 		d("Using ident")
-		lgen(ast, e)
+		lgenExpr(ast, e)
 		emit("pop rax")
 		emit("mov rax, [rax]")
 		emit("push rax")
@@ -77,6 +77,17 @@ func genExpr(ast *Ast, expr Expr) {
 		} else {
 			emitf("push %s", e.Val)
 		}
+
+	case *StarExpr:
+		d("StarExpr")
+		genExpr(ast, e.X)
+		emit("pop rax")
+		emit("mov rax, [rax]")
+		emit("push rax")
+
+	case *UnaryExpr:
+		d("UnaryExpr")
+		lgenExpr(ast, e.X)
 
 	case *Binary:
 		genExpr(ast, e.Left)
@@ -235,7 +246,7 @@ func gen(ast *Ast, n Node) {
 
 	case *AssignStmt:
 		for i := range v.Lhs {
-			lgen(ast, v.Lhs[i])
+			lgenExpr(ast, v.Lhs[i])
 			genExpr(ast, v.Rhs[i])
 		}
 
@@ -258,7 +269,7 @@ func gen(ast *Ast, n Node) {
 
 	case *ValueSpec:
 		for i, expr := range v.InitValues {
-			lgen(ast, v.Names[i])
+			lgenExpr(ast, v.Names[i])
 			genExpr(ast, expr)
 			emit("pop rdi")
 			emit("pop rax")
