@@ -6,13 +6,25 @@ func (ast *Ast) walkExpr(expr Expr) {
 	switch e := expr.(type) {
 
 	case *Ident:
-		_, found := ast.CurrentScope.LookUpSymbol(e.Name)
+		sym, found := ast.CurrentScope.LookUpSymbol(e.Name)
 		if !found {
 			ast.semanticErrors = append(ast.semanticErrors,
 				fmt.Errorf("undefined variable : %s", e.Name))
 		}
 
-	case *Lit, *Binary, *CallFunc:
+		e._Size = sym.Type.Size
+		e._Offset = sym.Offset
+
+	case *Binary:
+		ast.walkExpr(e.Left)
+		ast.walkExpr(e.Right)
+
+	case *CallFunc:
+		for _, arg := range e.Args {
+			ast.walkExpr(arg)
+		}
+
+	case *Lit:
 	}
 }
 
@@ -70,6 +82,7 @@ func (ast *Ast) walkNode(n Node) {
 
 		for _, arg := range typ.FuncType.Args {
 			ident := arg.Type.(*Ident)
+
 			t, err := ast.CurrentScope.ResolveType(ident.Name)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
@@ -80,6 +93,9 @@ func (ast *Ast) walkNode(n Node) {
 				if err != nil {
 					ast.semanticErrors = append(ast.semanticErrors, err)
 				}
+
+				ident._Offset = ast.CurrentScope.frameSize()
+				ident._Size = t.Size
 			}
 		}
 
@@ -92,6 +108,7 @@ func (ast *Ast) walkNode(n Node) {
 		}
 
 		ast.walkStmt(typ.Body)
+		typ._FrameSize = ast.TopScope.frameSize() + ast.TopScope.Children[0].frameSize()
 
 	case *GenDecl:
 		for _, spec := range typ.Specs {
@@ -112,7 +129,11 @@ func (ast *Ast) walkNode(n Node) {
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
-			ast.walkExpr(ident)
+
+			ident._Size = typ.Type.Size
+			ident._Offset = ast.CurrentScope.frameSize()
+
+			ast.walkExpr(ident) // ....
 		}
 
 		for _, e := range typ.InitValues {

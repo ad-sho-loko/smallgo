@@ -19,6 +19,11 @@ func emitfNoIndent(format string, v ...interface{}) {
 	fmt.Println(s)
 }
 
+// for debug
+func d(s string) {
+	fmt.Println("# " + s)
+}
+
 func reg(i, size int) string {
 	if size == 1 {
 		return argregs8[i]
@@ -36,10 +41,8 @@ func ptr(size int) string {
 func lgen(ast *Ast, e Expr) {
 	switch v := e.(type) {
 	case *Ident:
-		sym, found := ast.CurrentScope.LookUpSymbol(v.Name)
-		_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", v.Name, ast.CurrentScope.Name))
 		emit("mov rax, rbp")
-		emitf("sub rax, %d", sym.Offset)
+		emitf("sub rax, %d", v._Offset)
 		emit("push rax")
 	default:
 		panic("gen.go : invalid lgen")
@@ -62,6 +65,7 @@ func genExpr(ast *Ast, expr Expr) {
 		emit("push rax")
 
 	case *Ident:
+		d("Using ident")
 		lgen(ast, e)
 		emit("pop rax")
 		emit("mov rax, [rax]")
@@ -152,15 +156,12 @@ func gen(ast *Ast, n Node) {
 		emitfNoIndent("%s:", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		frameSize := ast.TopScope.frameSize() + ast.TopScope.Children[0].frameSize()
-		emitf("sub rsp, %d", roundup(frameSize, 8))
+		emitf("sub rsp, %d", roundup(v._FrameSize, 8))
+
 		argNum := 0
 		for _, arg := range v.FuncType.Args {
 			for _, name := range arg.Names {
-				sym, found := ast.CurrentScope.LookUpSymbol(name.Name)
-				_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", name.Name, ast.CurrentScope.Name))
-				// emitf("mov [rbp-%d], %s", sym.Offset, argregs[argNum])
-				emitf("mov %s [rbp-%d], %s", ptr(sym.Type.Size), sym.Offset, reg(argNum, sym.Type.Size))
+				emitf("mov %s [rbp-%d], %s", ptr(name._Size), name._Offset, reg(argNum, name._Size))
 				argNum++
 			}
 		}

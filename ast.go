@@ -106,7 +106,9 @@ type (
 	}
 
 	Ident struct {
-		Name string
+		Name    string
+		_Size   int
+		_Offset int
 	}
 
 	CallFunc struct {
@@ -122,9 +124,10 @@ type (
 	}
 
 	FuncDecl struct {
-		FuncName *Ident
-		FuncType *FuncType
-		Body     *BlockStmt
+		FuncName   *Ident
+		FuncType   *FuncType
+		Body       *BlockStmt
+		_FrameSize int
 	}
 )
 
