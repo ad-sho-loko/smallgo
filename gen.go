@@ -26,6 +26,11 @@ func genExpr(ast *Ast, expr Expr) {
 
 	switch e := expr.(type) {
 	case *CallFunc:
+		for _, e := range e.Args{
+			genExpr(ast, e)
+			emit("pop rax")
+			emit("mov rdi, rax")
+		}
 		fmt.Printf("  call %s\n", e.FuncName)
 		emit("push rax")
 
@@ -116,7 +121,16 @@ func gen(ast *Ast, n Node) {
 		fmt.Printf("%s:\n", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		fmt.Printf("  sub rsp, %d\n", ast.TopScope.Children[0].frameSize())
+		fmt.Printf("  sub rsp, %d\n", ast.TopScope.frameSize() + ast.TopScope.Children[0].frameSize())
+
+		for _, arg := range v.FuncType.Args{
+			for _, name := range arg.Names{
+				_, found := ast.CurrentScope.LookUpSymbol(name.Name)
+				_assert(found, fmt.Sprintf("lookup failed : %s (scope=%s)", name.Name, ast.CurrentScope.Name))
+				emit("mov [rsp], rdi")
+			}
+		}
+
 		gen(ast, v.Body)
 		emit("mov rax, 0")
 		emit("mov rsp, rbp")

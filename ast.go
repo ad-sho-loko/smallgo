@@ -111,6 +111,7 @@ type (
 
 	CallFunc struct {
 		FuncName string
+		Args     []Expr
 	}
 )
 
@@ -122,10 +123,8 @@ type (
 
 	FuncDecl struct {
 		FuncName *Ident
-		// Field
-		ReturnType      *Type
-		ReturnTypeIdent *Ident
-		Body            *BlockStmt
+		FuncType *FuncType
+		Body     *BlockStmt
 	}
 )
 
@@ -137,6 +136,18 @@ type (
 		InitValues []Expr
 	}
 )
+
+type(
+	FuncType struct {
+		Args  []*Field
+		Returns []*Field
+	}
+)
+
+type Field struct {
+	Names []*Ident
+	Type  Expr
+}
 
 func (r *ReturnStmt) stmtNode() {}
 func (a *AssignStmt) stmtNode() {}
@@ -150,6 +161,7 @@ func (l *Lit) exprNode()      {}
 func (b *Binary) exprNode()   {}
 func (i *Ident) exprNode()    {}
 func (c *CallFunc) exprNode() {}
+func (t *Type) exprNode(){}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

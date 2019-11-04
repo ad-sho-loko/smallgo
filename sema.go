@@ -66,17 +66,31 @@ func (ast *Ast) walkNode(n Node) {
 			ast.semanticErrors = append(ast.semanticErrors, err)
 		}
 
-		if typ.ReturnTypeIdent != nil && typ.ReturnType == nil {
-			t, err := ast.CurrentScope.ResolveType(typ.ReturnTypeIdent.Name)
+		ast.walkExpr(typ.FuncName)
+
+		for _, arg := range typ.FuncType.Args{
+			ident := arg.Type.(*Ident)
+			t, err := ast.CurrentScope.ResolveType(ident.Name)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
 
-			typ.ReturnType = t
+			for _, ident := range arg.Names{
+				err = ast.CurrentScope.RegisterSymbol(ident.Name, t)
+				if err != nil{
+					ast.semanticErrors = append(ast.semanticErrors, err)
+				}
+			}
 		}
 
-		ast.walkExpr(typ.FuncName)
-		// ast.walkNode(typ.ReturnType)
+		for _, r := range typ.FuncType.Returns{
+			ident := r.Type.(*Ident)
+			r.Type, err = ast.CurrentScope.ResolveType(ident.Name)
+			if err != nil {
+				ast.semanticErrors = append(ast.semanticErrors, err)
+			}
+		}
+
 		ast.walkStmt(typ.Body)
 
 	case *GenDecl:

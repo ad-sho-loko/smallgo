@@ -43,6 +43,38 @@ func (p *Parser) expect(t TokenKind) *Token {
 	return c
 }
 
+func (p *Parser) readField() *Field{
+	var names []*Ident
+	var typ Expr
+
+	names = append(names, p.ident())
+	for p.consume(COMMA){
+		names = append(names, p.ident())
+	}
+
+	if p.peek().Kind == IDENT{
+		typ = p.ident()
+	} else {
+		typ = names[0]
+		names = nil
+	}
+
+	return &Field{
+		Names:names,
+		Type:typ,
+	}
+}
+
+func (p *Parser) readFields() []*Field{
+	var fields []*Field
+
+	for p.peek().Kind != RPAREN && p.peek().Kind != LBRACE{
+		fields = append(fields, p.readField())
+	}
+
+	return fields
+}
+
 func (p *Parser) ident() *Ident {
 	tkn := p.expect(IDENT)
 	return &Ident{Name: tkn.Val}
@@ -70,9 +102,14 @@ func (p *Parser) primary() Expr {
 
 	factor := p.factor()
 	if p.consume(LPAREN) {
-		ident := factor.(*Ident)
-		p.expect(RPAREN)
-		return &CallFunc{FuncName: ident.Name}
+		funcName := factor.(*Ident)
+		callFunc := &CallFunc{FuncName: funcName.Name}
+
+		for !p.consume(RPAREN){
+			callFunc.Args = append(callFunc.Args, p.expr())
+		}
+
+		return callFunc
 	}
 
 	return factor
@@ -362,15 +399,22 @@ func (p *Parser) stmtBlock() *BlockStmt {
 
 func (p *Parser) toplevel() *FuncDecl {
 	funcDecl := FuncDecl{}
+	funcDecl.FuncType = &FuncType{}
 
 	if p.consume(FUNC) {
 		funcDecl.FuncName = p.ident()
+
 		p.expect(LPAREN)
+		if p.peek().Kind == IDENT{
+			funcDecl.FuncType.Args = p.readFields()
+		}
 		p.expect(RPAREN)
 
+		p.consume(LPAREN)
 		if p.peek().Kind == IDENT {
-			funcDecl.ReturnTypeIdent = p.expr().(*Ident)
+			funcDecl.FuncType.Returns = p.readFields()
 		}
+		p.consume(RPAREN)
 
 		funcDecl.Body = p.stmtBlock()
 	}

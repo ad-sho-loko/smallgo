@@ -38,6 +38,7 @@ const (
 	RPAREN               // )
 	LBRACE               // {
 	RBRACE               // }
+	COMMA                // ,
 	SEMICOLON            // ;
 	ASSIGN               // =
 	EQL                  // ==
@@ -85,6 +86,7 @@ var tokenString = map[TokenKind]string{
 	RPAREN:     "RPAREN",
 	LBRACE:     "LBRACE",
 	RBRACE:     "RBRACE",
+	COMMA:		"COMMA",
 	SEMICOLON:  "SEMICOLON",
 	ASSIGN:     "ASSIGN",
 	EQL:        "EQL",
@@ -340,6 +342,9 @@ func (t *Tokenizer) Tokenize() []*Token {
 			t.pos++
 			kind := t.switch3('&', AND, AND_ASSIGN, LAND)
 			tokens = append(tokens, t.newToken(kind, ""))
+			t.pos++
+		case ',':
+			tokens = append(tokens, t.newToken(COMMA, ""))
 			t.pos++
 		case ';':
 			tokens = append(tokens, t.newToken(SEMICOLON, ""))

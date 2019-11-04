@@ -84,6 +84,7 @@ try 50 'func main() { var i = 0 for ;;{ i += 1 if i >= 50 { return i }} return 1
 try 10 'func main() { var i = 0 for i<10 { i += 1 } return 10 }'
 try 10 'func main() { var i = 0 for ;i<10; { i += 1 } return 10 }'
 try 50 'func main() { var i = 0 for ;;i+=1 { if i >= 50 {return i } } return 10 }'
+try 5 'func main() int { return f(5) } func f(n int) int { return 5 }'
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'
