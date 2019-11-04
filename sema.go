@@ -68,22 +68,22 @@ func (ast *Ast) walkNode(n Node) {
 
 		ast.walkExpr(typ.FuncName)
 
-		for _, arg := range typ.FuncType.Args{
+		for _, arg := range typ.FuncType.Args {
 			ident := arg.Type.(*Ident)
 			t, err := ast.CurrentScope.ResolveType(ident.Name)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
 
-			for _, ident := range arg.Names{
+			for _, ident := range arg.Names {
 				err = ast.CurrentScope.RegisterSymbol(ident.Name, t)
-				if err != nil{
+				if err != nil {
 					ast.semanticErrors = append(ast.semanticErrors, err)
 				}
 			}
 		}
 
-		for _, r := range typ.FuncType.Returns{
+		for _, r := range typ.FuncType.Returns {
 			ident := r.Type.(*Ident)
 			r.Type, err = ast.CurrentScope.ResolveType(ident.Name)
 			if err != nil {

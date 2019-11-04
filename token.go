@@ -86,7 +86,7 @@ var tokenString = map[TokenKind]string{
 	RPAREN:     "RPAREN",
 	LBRACE:     "LBRACE",
 	RBRACE:     "RBRACE",
-	COMMA:		"COMMA",
+	COMMA:      "COMMA",
 	SEMICOLON:  "SEMICOLON",
 	ASSIGN:     "ASSIGN",
 	EQL:        "EQL",

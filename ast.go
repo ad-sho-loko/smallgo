@@ -137,9 +137,9 @@ type (
 	}
 )
 
-type(
+type (
 	FuncType struct {
-		Args  []*Field
+		Args    []*Field
 		Returns []*Field
 	}
 )
@@ -161,7 +161,7 @@ func (l *Lit) exprNode()      {}
 func (b *Binary) exprNode()   {}
 func (i *Ident) exprNode()    {}
 func (c *CallFunc) exprNode() {}
-func (t *Type) exprNode(){}
+func (t *Type) exprNode()     {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

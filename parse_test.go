@@ -271,7 +271,7 @@ func TestParse_ExprStmt(t *testing.T) {
 	assertNodeWalk(t, ast, test.want)
 }
 
-func TestParse_ReadField(t *testing.T){
+func TestParse_ReadField(t *testing.T) {
 	// (x int)
 	test := struct {
 		b    []*Token
@@ -283,8 +283,8 @@ func TestParse_ReadField(t *testing.T){
 			{Kind: EOF, Val: ""},
 		},
 		want: &Field{
-			Names:[]*Ident{{Name:"x"}},
-			Type:&Ident{Name:"int"},
+			Names: []*Ident{{Name: "x"}},
+			Type:  &Ident{Name: "int"},
 		},
 	}
 	f := NewParser(test.b).readField()
@@ -303,8 +303,8 @@ func TestParse_ReadField(t *testing.T){
 			{Kind: EOF, Val: ""},
 		},
 		want: &Field{
-			Names:[]*Ident{{Name:"x"}, {Name:"y"}},
-			Type:&Ident{Name:"int"},
+			Names: []*Ident{{Name: "x"}, {Name: "y"}},
+			Type:  &Ident{Name: "int"},
 		},
 	}
 
@@ -321,12 +321,11 @@ func TestParse_ReadField(t *testing.T){
 			{Kind: EOF, Val: ""},
 		},
 		want: &Field{
-			Names:nil,
-			Type:&Ident{Name:"int"},
+			Names: nil,
+			Type:  &Ident{Name: "int"},
 		},
 	}
 
 	f = NewParser(test.b).readField()
 	assert.Equal(t, test.want, f)
-
 }
