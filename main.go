@@ -36,11 +36,9 @@ func main() {
 	isTrace := parseOption(os.Args[2:])
 
 	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
-	ast := NewParser(tokens, isTrace).ParseFile(universe)
-	ast.CurrentScope = universe
-	ast.TopScope = universe
+	ast := NewParser(tokens, isTrace).ParseFile()
 
-	err := WalkAst(ast)
+	err := WalkAst(ast, universe)
 
 	if err != nil {
 		panic(err)

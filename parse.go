@@ -573,7 +573,7 @@ func (p *Parser) toplevel() *FuncDecl {
 	return &funcDecl
 }
 
-func (p *Parser) ParseFile(scope *Scope) *Ast {
+func (p *Parser) ParseFile() *Ast {
 	if p.trace {
 		un(trace(p, "PARSE START"))
 	}

@@ -199,11 +199,9 @@ func gen(ast *Ast, n Node) {
 		emit("ret")
 
 	case *BlockStmt:
-		ast.scopeDown()
 		for _, stmt := range v.List {
 			gen(ast, stmt)
 		}
-		ast.scopeUp()
 
 	case *IfStmt:
 		genExpr(ast, v.Cond)

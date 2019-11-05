@@ -1,172 +1,129 @@
 package main
 
-import (
-	"fmt"
-	"strconv"
-)
+type Visiter interface{
+	VisitNode(node Node)
+	VisitStmt(stmt Stmt)
+	VisitExpr(expr Expr)
+	LeaveNode(node Node)
+	LeaveStmt(stmt Stmt)
+}
 
-func (ast *Ast) walkExpr(expr Expr) {
+func walkExpr(v Visiter, expr Expr) {
+	v.VisitExpr(expr)
+
 	switch e := expr.(type) {
 
 	case *Ident:
-		sym, found := ast.CurrentScope.LookUpSymbol(e.Name)
-		if !found {
-			ast.semanticErrors = append(ast.semanticErrors,
-				fmt.Errorf("undefined variable : %s", e.Name))
-		}
-
-		if sym.Type.Kind == Array {
-			// e._Size = sym.Type.ArraySize
-			e._Offset = sym.Offset
-		} else {
-			e._Size = sym.Type.Size
-			e._Offset = sym.Offset
-		}
 
 	case *Binary:
-		ast.walkExpr(e.Left)
-		ast.walkExpr(e.Right)
+		walkExpr(v, e.Left)
+		walkExpr(v, e.Right)
+
+	case *FuncType:
 
 	case *CallFunc:
 		for _, arg := range e.Args {
-			ast.walkExpr(arg)
+			walkExpr(v, arg)
 		}
 
 	case *StarExpr:
-		ast.walkExpr(e.X)
+		walkExpr(v, e.X)
 
 	case *UnaryExpr:
-		ast.walkExpr(e.X)
+		walkExpr(v, e.X)
 
 	case *Lit:
 	}
 }
 
-func (ast *Ast) walkStmt(stmt Stmt) {
+func walkStmt(v Visiter, stmt Stmt) {
+	v.VisitStmt(stmt)
+
 	switch s := stmt.(type) {
+
 	case *IfStmt:
-		ast.walkExpr(s.Cond)
-		ast.walkStmt(s.Then)
-		ast.walkStmt(s.Else)
+		walkExpr(v, s.Cond)
+		walkStmt(v, s.Then)
+		walkStmt(v, s.Else)
+
 	case *ForStmt:
-		ast.walkStmt(s.Init)
-		ast.walkExpr(s.Cond)
-		ast.walkStmt(s.Post)
-		ast.walkStmt(s.Body)
+		walkStmt(v, s.Init)
+		walkExpr(v, s.Cond)
+		walkStmt(v, s.Post)
+		walkStmt(v, s.Body)
+
 	case *BlockStmt:
-		ast.createScope("__blockStmt")
 		for _, stmt := range s.List {
-			ast.walkStmt(stmt)
+			walkStmt(v, stmt)
 		}
-		ast.exitScope()
 
 	case *DeclStmt:
-		ast.walkNode(s.Decl)
+		walkNode(v, s.Decl)
 
 	case *ExprStmt:
 		for _, e := range s.Exprs {
-			ast.walkExpr(e)
+			walkExpr(v, e)
 		}
 
 	case *AssignStmt:
 		for _, e := range s.Lhs {
-			ast.walkExpr(e)
+			walkExpr(v, e)
 		}
 
 		for _, e := range s.Rhs {
-			ast.walkExpr(e)
+			walkExpr(v, e)
 		}
 
 	case *ReturnStmt:
 		for _, e := range s.Exprs {
-			ast.walkExpr(e)
+			walkExpr(v, e)
 		}
 	}
+
+	v.LeaveStmt(stmt)
 }
 
-func (ast *Ast) walkNode(n Node) {
+func walkNode(v Visiter, n Node) {
+	v.VisitNode(n)
+
 	switch typ := n.(type) {
 	case *FuncDecl:
-		err := ast.CurrentScope.RegisterSymbol(typ.FuncName.Name, NewFunc())
-		if err != nil {
-			ast.semanticErrors = append(ast.semanticErrors, err)
-		}
-
-		ast.walkExpr(typ.FuncName)
-
-		for _, arg := range typ.FuncType.Args {
-			t, err := ast.CurrentScope.ResolveTop(arg.Type)
-			if err != nil {
-				ast.semanticErrors = append(ast.semanticErrors, err)
-			}
-
-			for _, ident := range arg.Names {
-				err = ast.CurrentScope.RegisterSymbol(ident.Name, t)
-				if err != nil {
-					ast.semanticErrors = append(ast.semanticErrors, err)
-				}
-
-				ident._Offset = ast.CurrentScope.frameSize()
-				ident._Size = t.Size
-			}
-		}
-
-		for _, r := range typ.FuncType.Returns {
-			r.Type, err = ast.CurrentScope.ResolveTop(r.Type)
-			if err != nil {
-				ast.semanticErrors = append(ast.semanticErrors, err)
-			}
-		}
-
-		ast.walkStmt(typ.Body)
-		typ._FrameSize = ast.TopScope.frameSize() + ast.TopScope.Children[0].frameSize()
+		walkExpr(v, typ.FuncName)
+		walkExpr(v, typ.FuncType)
+		walkStmt(v, typ.Body)
 
 	case *GenDecl:
 		for _, spec := range typ.Specs {
-			ast.walkNode(spec)
+			walkNode(v, spec)
 		}
 
 	case *ValueSpec:
-		var err error
-		typ.Type, err = ast.CurrentScope.ResolveTop(typ.Type)
-		if err != nil {
-			ast.semanticErrors = append(ast.semanticErrors, err)
-		}
-
 		for _, ident := range typ.Names {
-			_assert(typ.Type != nil, "type must not be nil here")
-
-			t := typ.Type.(*Type)
-			err := ast.CurrentScope.RegisterSymbol(ident.Name, t)
-			if err != nil {
-				ast.semanticErrors = append(ast.semanticErrors, err)
-			}
-
-			if t.Kind == Array {
-				sizeLit := t.ArraySize.(*Lit)
-				sizeInt, _ := strconv.Atoi(sizeLit.Val)
-				ident._Size = sizeInt * t.PtrOf.(*Type).Size
-				ident._Offset = ast.CurrentScope.frameSize()
-			} else {
-				ident._Size = t.Size
-				ident._Offset = ast.CurrentScope.frameSize()
-			}
-
-			ast.walkExpr(ident) // ....
+			walkExpr(v, ident)
 		}
 
 		for _, e := range typ.InitValues {
-			ast.walkExpr(e)
+			walkExpr(v,e)
 		}
 	}
+
+	v.LeaveNode(n)
 }
 
-func WalkAst(ast *Ast) error {
+func WalkAst(ast *Ast, scope *Scope) error {
+	// Phase1. Register symbols & Resolve types.
 	for _, n := range ast.Nodes {
-		ast.walkNode(n)
+		resolver := &Resolver{
+			ast:ast,
+			TopScope:scope,
+			CurrentScope:scope,
+		}
+
+		walkNode(resolver, n)
 		if len(ast.semanticErrors) > 0 {
 			exitErrors(ast.semanticErrors)
 		}
 	}
+
 	return nil
 }
