@@ -100,6 +100,7 @@ try 10 'func main() int { var x int x = 10 var y *int y = &x return *y }'
 try 10 'func main() int { var x int x = 10 var y *int y = &x var z **int z = &y return **z }'
 try 97 "func main() int { var x byte x = 'a' var y *byte y = &x return *y }"
 try 1 "func main() int { var x byte x = 'a' var y *byte y = &x return y == y }"
+try 100 "func main() int { var x [10]int return 100 }"
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'

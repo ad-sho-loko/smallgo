@@ -283,7 +283,7 @@ func TestParse_ReadField(t *testing.T) {
 		},
 		want: &Field{
 			Names: []*Ident{{Name: "x"}},
-			Type:  &Ident{Name: "int"},
+			Type:  &TypeName{Name: "int"},
 		},
 	}
 	f := NewParser(test.b, false).readField()
@@ -303,7 +303,7 @@ func TestParse_ReadField(t *testing.T) {
 		},
 		want: &Field{
 			Names: []*Ident{{Name: "x"}, {Name: "y"}},
-			Type:  &Ident{Name: "int"},
+			Type:  &TypeName{Name: "int"},
 		},
 	}
 
@@ -321,7 +321,7 @@ func TestParse_ReadField(t *testing.T) {
 		},
 		want: &Field{
 			Names: nil,
-			Type:  &Ident{Name: "int"},
+			Type:  &TypeName{Name: "int"},
 		},
 	}
 

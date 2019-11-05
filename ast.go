@@ -111,6 +111,10 @@ type (
 		_Offset int
 	}
 
+	TypeName struct {
+		Name string
+	}
+
 	CallFunc struct {
 		FuncName string
 		Args     []Expr
@@ -141,8 +145,7 @@ type (
 
 type (
 	ValueSpec struct {
-		Type       *Type
-		TypeIdent  *Ident
+		Type       Expr
 		Names      []*Ident
 		InitValues []Expr
 	}
@@ -171,10 +174,12 @@ func (f *ForStmt) stmtNode()    {}
 func (l *Lit) exprNode()       {}
 func (b *Binary) exprNode()    {}
 func (i *Ident) exprNode()     {}
+func (t *TypeName) exprNode()  {}
 func (c *CallFunc) exprNode()  {}
 func (s *StarExpr) exprNode()  {}
 func (u *UnaryExpr) exprNode() {}
 func (t *Type) exprNode()      {}
+func (f *FuncType) exprNode()  {}
 
 func (v *ValueSpec) specNode() {}
 func (g *GenDecl) declNode()   {}

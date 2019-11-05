@@ -75,6 +75,8 @@ func TestTokenize_Operator(t *testing.T) {
 		{[]byte(")"), Token{Kind: RPAREN, Val: ""}},
 		{[]byte("{"), Token{Kind: LBRACE, Val: ""}},
 		{[]byte("}"), Token{Kind: RBRACE, Val: ""}},
+		{[]byte("["), Token{Kind: LBRACK, Val: ""}},
+		{[]byte("]"), Token{Kind: RBRACK, Val: ""}},
 		{[]byte(","), Token{Kind: COMMA, Val: ""}},
 		{[]byte(";"), Token{Kind: SEMICOLON, Val: ""}},
 		{[]byte("=="), Token{Kind: EQL, Val: ""}},

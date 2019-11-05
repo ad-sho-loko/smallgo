@@ -78,15 +78,15 @@ func (p *Parser) readField() *Field {
 	var typ Expr
 
 	p.consume(COMMA)
-	names = append(names, p.ident())
+	names = append(names, p.readIdent())
 	for p.consume(COMMA) {
-		names = append(names, p.ident())
+		names = append(names, p.readIdent())
 	}
 
 	if p.peek().Kind == IDENT {
-		typ = p.ident()
+		typ = p.readType()
 	} else {
-		typ = names[0]
+		typ = &TypeName{Name: names[0].Name}
 		names = nil
 	}
 
@@ -106,18 +106,35 @@ func (p *Parser) readFields() []*Field {
 	return fields
 }
 
-func (p *Parser) ident() *Ident {
-	// pointer type
-	if p.peek().Kind == MUL {
-		ptrs := ""
-		for p.consume(MUL) {
-			ptrs += "*"
-		}
+func (p *Parser) readArray() Expr {
+	p.expect(LBRACK)
+	arraySize := p.expr()
+	p.expect(RBRACK)
+	typ := p.readType()
 
-		tkn := p.expect(IDENT)
-		return &Ident{Name: ptrs + tkn.Val}
+	return &Type{
+		Kind:      Array,
+		PtrOf:     typ,
+		ArraySize: arraySize,
+	}
+}
+
+func (p *Parser) readType() Expr {
+	// pointer type
+	if p.consume(MUL) {
+		return NewPointer(p.readType())
 	}
 
+	// array type
+	if p.peek().Kind == LBRACK {
+		return p.readArray()
+	}
+
+	tkn := p.expect(IDENT)
+	return &TypeName{Name: tkn.Val}
+}
+
+func (p *Parser) readIdent() *Ident {
 	tkn := p.expect(IDENT)
 	return &Ident{Name: tkn.Val}
 }
@@ -138,7 +155,7 @@ func (p *Parser) factor() Expr {
 	}
 
 	if p.peek().Kind == IDENT {
-		return p.ident()
+		return p.readIdent()
 	}
 
 	panic(fmt.Sprintf("parse.go : invalid factor %s", p.peek()))
@@ -392,24 +409,25 @@ func (p *Parser) varDecl() *DeclStmt {
 		defer un(trace(p, "varDecl"))
 	}
 
-	ident := p.ident()
+	ident := p.readIdent()
 
 	var specs []Spec
 	if p.consume(ASSIGN) {
 		// ex ) var x = 2
 		initValues := p.expr()
 		spec := &ValueSpec{
-			Type:       NewInt(),
+			Type:       &TypeName{Name: "int"},
 			Names:      []*Ident{ident},
 			InitValues: []Expr{initValues},
 		}
 		specs = append(specs, spec)
-	} else if p.peek().Kind == IDENT || p.peek().Kind == MUL {
-		// ex ) var x int
-		typeName := p.ident()
+	} else if p.peek().Kind == IDENT || p.peek().Kind == MUL || p.peek().Kind == LBRACK {
+		// ex ) var x int, var x *int, var x []int
+		typeName := p.readType()
+
 		spec := &ValueSpec{
-			TypeIdent: typeName,
-			Names:     []*Ident{ident},
+			Type:  typeName,
+			Names: []*Ident{ident},
 		}
 		specs = append(specs, spec)
 	}
@@ -535,7 +553,7 @@ func (p *Parser) toplevel() *FuncDecl {
 	funcDecl.FuncType = &FuncType{}
 
 	if p.consume(FUNC) {
-		funcDecl.FuncName = p.ident()
+		funcDecl.FuncName = p.readIdent()
 
 		p.expect(LPAREN)
 		if p.peek().Kind == IDENT {

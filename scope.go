@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"strconv"
 )
 
 const (
@@ -66,29 +66,28 @@ func (s *Scope) RegisterSymbol(name string, typ *Type) error {
 	return nil
 }
 
-func wrapStar(n int, inner *Type) *Type {
-	if n == 0 {
-		return inner
+func (s *Scope) ResolveTop(expr Expr) (*Type, error) {
+	switch e := expr.(type) {
+	case *Type:
+		return s.ResolveType(e)
+	case *TypeName:
+		return s.ResolveTypeName(e.Name)
 	}
 
-	return wrapStar(n-1, NewPointer(inner))
+	panic("cannot resolve")
 }
 
-func unwrapStar(n int, typeName string) (int, string) {
-	if strings.HasPrefix(typeName, "*") {
-		return unwrapStar(n+1, typeName[1:])
+func (s *Scope) ResolveType(typ *Type) (*Type, error) {
+	if typ.Kind == Array || typ.Kind == Ptr {
+		var err error
+		typ.PtrOf, err = s.ResolveTop(typ.PtrOf)
+		return typ, err
 	}
 
-	return n, typeName
+	panic("cannot reach here")
 }
 
-func (s *Scope) ResolveType(typeName string) (*Type, error) {
-	numOfStar := 0
-	unwrapTypeName := typeName
-	if strings.HasPrefix(typeName, "*") {
-		numOfStar, typeName = unwrapStar(0, typeName)
-	}
-
+func (s *Scope) ResolveTypeName(typeName string) (*Type, error) {
 	typ, found := s.DeclType[typeName]
 
 	if !found {
@@ -96,11 +95,7 @@ func (s *Scope) ResolveType(typeName string) (*Type, error) {
 			return nil, fmt.Errorf(UndefinedType, typeName)
 		}
 
-		return s.Outer.ResolveType(unwrapTypeName)
-	}
-
-	if numOfStar > 0 {
-		return wrapStar(numOfStar, typ), nil
+		return s.Outer.ResolveTypeName(typeName)
 	}
 
 	return typ, nil
@@ -115,7 +110,13 @@ func (s *Scope) frameSize() int {
 	}
 
 	for _, v := range values {
-		sum += v.Type.Size
+		if v.Type.Kind == Array {
+			sizeLit := v.Type.ArraySize.(*Lit)
+			sizeInt, _ := strconv.Atoi(sizeLit.Val)
+			sum += sizeInt * v.Type.PtrOf.(*Type).Size
+		} else {
+			sum += v.Type.Size
+		}
 	}
 
 	return sum

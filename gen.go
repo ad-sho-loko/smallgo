@@ -65,7 +65,7 @@ func genExpr(ast *Ast, expr Expr) {
 		emit("push rax")
 
 	case *Ident:
-		d("Using ident")
+		d("Using readIdent")
 		lgenExpr(ast, e)
 		emit("pop rax")
 		emit("mov rax, [rax]")

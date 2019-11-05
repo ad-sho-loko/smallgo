@@ -18,9 +18,8 @@ func TestSema_IdentIsTypeName(t *testing.T) {
 	ast := makeAst()
 	ast.Nodes = []Node{
 		&ValueSpec{
-			Type:      nil,
-			TypeIdent: &Ident{Name: "int"},
-			Names:     []*Ident{{Name: "int"}},
+			Type:  &TypeName{Name: "int"},
+			Names: []*Ident{{Name: "int"}},
 		},
 	}
 

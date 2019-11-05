@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 func (ast *Ast) walkExpr(expr Expr) {
 	switch e := expr.(type) {
@@ -12,8 +15,13 @@ func (ast *Ast) walkExpr(expr Expr) {
 				fmt.Errorf("undefined variable : %s", e.Name))
 		}
 
-		e._Size = sym.Type.Size
-		e._Offset = sym.Offset
+		if sym.Type.Kind == Array {
+			// e._Size = sym.Type.ArraySize
+			e._Offset = sym.Offset
+		} else {
+			e._Size = sym.Type.Size
+			e._Offset = sym.Offset
+		}
 
 	case *Binary:
 		ast.walkExpr(e.Left)
@@ -87,9 +95,7 @@ func (ast *Ast) walkNode(n Node) {
 		ast.walkExpr(typ.FuncName)
 
 		for _, arg := range typ.FuncType.Args {
-			ident := arg.Type.(*Ident)
-
-			t, err := ast.CurrentScope.ResolveType(ident.Name)
+			t, err := ast.CurrentScope.ResolveTop(arg.Type)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
@@ -106,8 +112,7 @@ func (ast *Ast) walkNode(n Node) {
 		}
 
 		for _, r := range typ.FuncType.Returns {
-			ident := r.Type.(*Ident)
-			r.Type, err = ast.CurrentScope.ResolveType(ident.Name)
+			r.Type, err = ast.CurrentScope.ResolveTop(r.Type)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
@@ -122,24 +127,30 @@ func (ast *Ast) walkNode(n Node) {
 		}
 
 	case *ValueSpec:
-		if typ.Type == nil {
-			t, err := ast.CurrentScope.ResolveType(typ.TypeIdent.Name)
-			if err != nil {
-				ast.semanticErrors = append(ast.semanticErrors, err)
-			}
-			typ.Type = t
+		var err error
+		typ.Type, err = ast.CurrentScope.ResolveTop(typ.Type)
+		if err != nil {
+			ast.semanticErrors = append(ast.semanticErrors, err)
 		}
 
 		for _, ident := range typ.Names {
 			_assert(typ.Type != nil, "type must not be nil here")
 
-			err := ast.CurrentScope.RegisterSymbol(ident.Name, typ.Type)
+			t := typ.Type.(*Type)
+			err := ast.CurrentScope.RegisterSymbol(ident.Name, t)
 			if err != nil {
 				ast.semanticErrors = append(ast.semanticErrors, err)
 			}
 
-			ident._Size = typ.Type.Size
-			ident._Offset = ast.CurrentScope.frameSize()
+			if t.Kind == Array {
+				sizeLit := t.ArraySize.(*Lit)
+				sizeInt, _ := strconv.Atoi(sizeLit.Val)
+				ident._Size = sizeInt * t.PtrOf.(*Type).Size
+				ident._Offset = ast.CurrentScope.frameSize()
+			} else {
+				ident._Size = t.Size
+				ident._Offset = ast.CurrentScope.frameSize()
+			}
 
 			ast.walkExpr(ident) // ....
 		}
