@@ -106,6 +106,11 @@ type (
 	UnaryExpr struct {
 		X Expr
 	}
+
+	IndexExpr struct {
+		X Expr
+		Index Expr
+	}
 )
 
 type (
@@ -157,6 +162,7 @@ func (t *TypeName) exprNode()  {}
 func (c *CallFunc) exprNode()  {}
 func (s *StarExpr) exprNode()  {}
 func (u *UnaryExpr) exprNode() {}
+func (i *IndexExpr) exprNode() {}
 func (t *Type) exprNode()      {}
 func (f *FuncType) exprNode()  {}
 

@@ -139,6 +139,23 @@ func (r *Resolver) VisitExpr(expr Expr) {
 			e._Offset = sym.Offset
 		}
 
+	case *IndexExpr:
+		ident := e.X.(*Ident)
+		indexStr := e.Index.(*Lit)
+		indexNum, _ := strconv.Atoi(indexStr.Val)
+
+		sym, found := r.CurrentScope.LookUpSymbol(ident.Name)
+		if !found {
+			r.ast.semanticErrors = append(r.ast.semanticErrors,
+				fmt.Errorf("undefined variable : %s", ident.Name))
+			return
+		}
+
+		arraySize, _ := strconv.Atoi(sym.Type.ArraySize.(*Lit).Val)
+
+		ident._Size =  sym.Type.PtrOf.(*Type).Size
+		ident._Offset = sym.Offset + (arraySize * ident._Size - ident._Size * indexNum)
+
 	default:
 		// nop
 	}

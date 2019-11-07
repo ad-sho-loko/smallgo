@@ -44,6 +44,9 @@ func lgenExpr(ast *Ast, e Expr) {
 		emit("mov rax, rbp")
 		emitf("sub rax, %d", v._Offset)
 		emit("push rax")
+	case *IndexExpr:
+		lgenExpr(ast, v.X)
+
 	default:
 		panic("gen.go : invalid lgenExpr")
 	}
@@ -88,6 +91,9 @@ func genExpr(ast *Ast, expr Expr) {
 	case *UnaryExpr:
 		d("UnaryExpr")
 		lgenExpr(ast, e.X)
+
+	case *IndexExpr:
+		genExpr(ast, e.X)
 
 	case *Binary:
 		genExpr(ast, e.Left)

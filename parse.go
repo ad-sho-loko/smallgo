@@ -78,9 +78,9 @@ func (p *Parser) readField() *Field {
 	var typ Expr
 
 	p.consume(COMMA)
-	names = append(names, p.readIdent())
+	names = append(names, p.readIdent().(*Ident))
 	for p.consume(COMMA) {
-		names = append(names, p.readIdent())
+		names = append(names, p.readIdent().(*Ident))
 	}
 
 	if p.peek().Kind == IDENT {
@@ -134,7 +134,7 @@ func (p *Parser) readType() Expr {
 	return &TypeName{Name: tkn.Val}
 }
 
-func (p *Parser) readIdent() *Ident {
+func (p *Parser) readIdent() Expr {
 	tkn := p.expect(IDENT)
 	return &Ident{Name: tkn.Val}
 }
@@ -173,6 +173,8 @@ func (p *Parser) primary() Expr {
 	}
 
 	factor := p.factor()
+
+	// eg) call()
 	if p.consume(LPAREN) {
 		funcName := factor.(*Ident)
 		callFunc := &CallFunc{FuncName: funcName.Name}
@@ -184,6 +186,19 @@ func (p *Parser) primary() Expr {
 
 		return callFunc
 	}
+
+	// ex) x[0]
+	if p.consume(LBRACK){
+		index := p.expr()
+		p.expect(RBRACK)
+
+		ident := factor.(*Ident)
+		return &IndexExpr{
+			X:ident,
+			Index:index,
+		}
+	}
+
 
 	return factor
 }
@@ -409,7 +424,7 @@ func (p *Parser) varDecl() *DeclStmt {
 		defer un(trace(p, "varDecl"))
 	}
 
-	ident := p.readIdent()
+	ident := p.readIdent().(*Ident)
 
 	var specs []Spec
 	if p.consume(ASSIGN) {
@@ -553,7 +568,7 @@ func (p *Parser) toplevel() *FuncDecl {
 	funcDecl.FuncType = &FuncType{}
 
 	if p.consume(FUNC) {
-		funcDecl.FuncName = p.readIdent()
+		funcDecl.FuncName = p.readIdent().(*Ident)
 
 		p.expect(LPAREN)
 		if p.peek().Kind == IDENT {

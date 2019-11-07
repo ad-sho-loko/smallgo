@@ -32,6 +32,9 @@ func walkExpr(v Visiter, expr Expr) {
 	case *UnaryExpr:
 		walkExpr(v, e.X)
 
+	case *IndexExpr:
+		// nop
+
 	case *Lit:
 	}
 }
