@@ -7,7 +7,7 @@ try() {
   echo "[Test : $input]"
 
   ./smallgo "$input" > tmp.s
-  gcc -o tmp tmp.s
+  gcc -o tmp tmp.s c/lib
   ./tmp
   actual="$?"
 
@@ -19,6 +19,7 @@ try() {
   fi
 }
 
+gcc -c c/lib.c -o c/lib
 try 42 'func main() int { return 42 }'
 try 5 'func main() int { return 2+3 }'
 try 1 'func main() int { return 3-2 }'
@@ -102,6 +103,7 @@ try 97 "func main() int { var x byte x = 'a' var y *byte y = &x return *y }"
 try 1 "func main() int { var x byte x = 'a' var y *byte y = &x return y == y }"
 try 100 "func main() int { var x [10]int return 100 }"
 try 20 "func main() int { var x [10]int x[2] = 20 return x[2] }"
+try 0 'func main() int { var s string s = "ok" println(s)}'
 
 # test errors
 # try 10 'func main() { var x = 5 if 2 > 1 { var y = 10 } return y}'

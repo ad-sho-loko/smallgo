@@ -134,7 +134,10 @@ func (r *Resolver) VisitExpr(expr Expr) {
 		if sym.Type.Kind == Array {
 			// e._Size = sym.Type.ArraySize
 			e._Offset = sym.Offset
-		} else {
+		} else if sym.Type.Kind == String{
+			e._Offset = sym.Offset
+			e._Label = sym.Type.String
+		}else{
 			e._Size = sym.Type.Size
 			e._Offset = sym.Offset
 		}
@@ -156,6 +159,13 @@ func (r *Resolver) VisitExpr(expr Expr) {
 		ident._Size =  sym.Type.PtrOf.(*Type).Size
 		ident._Offset = sym.Offset + (arraySize * ident._Size - ident._Size * indexNum)
 
+	case *Lit:
+		if e.Kind == STRING {
+			label := ".LC" + r.ast.L()
+			r.ast.stringLabels = append(r.ast.stringLabels, label + ":")
+			r.ast.strings = append(r.ast.strings, e.Val)
+			e.Val = label
+		}
 	default:
 		// nop
 	}

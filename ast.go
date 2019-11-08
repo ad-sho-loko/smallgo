@@ -6,6 +6,8 @@ type Ast struct {
 	Nodes          []Node
 	semanticErrors []error
 	labelCount     int
+	stringLabels   []string
+	strings        []string
 }
 
 func (ast *Ast) L() string {
@@ -88,6 +90,7 @@ type (
 		Name    string
 		_Size   int
 		_Offset int
+		_Label string
 	}
 
 	TypeName struct {

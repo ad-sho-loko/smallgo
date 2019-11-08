@@ -77,6 +77,9 @@ func genExpr(ast *Ast, expr Expr) {
 	case *Lit:
 		if e.Kind == CHAR {
 			emitf("push %d", e.Val[0])
+		} else if e.Kind == STRING{
+			emitf("lea rax, %s[rip]", e.Val)
+			emit("push rax")
 		} else {
 			emitf("push %s", e.Val)
 		}
@@ -287,9 +290,17 @@ func gen(ast *Ast, n Node) {
 	}
 }
 
+func genStrings(ast *Ast){
+	for i, s := range ast.strings{
+		emitfNoIndent(ast.stringLabels[i])
+		emitf(".string \"%s\"", s)
+	}
+}
+
 func Gen(ast *Ast) {
 	emitfNoIndent(".intel_syntax noprefix")
 	emitfNoIndent(".global main")
+	genStrings(ast)
 	fmt.Println()
 
 	for _, n := range ast.Nodes {

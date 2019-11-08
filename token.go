@@ -75,6 +75,7 @@ const (
 	FOR                      // for
 	IDENT
 	CHAR
+	STRING
 	EOF
 )
 
@@ -130,6 +131,7 @@ var tokenString = map[TokenKind]string{
 	FOR:            "FOR",
 	IDENT:          "IDENT",
 	CHAR:           "CHAR",
+	STRING:         "STRING",
 	EOF:            "EOF",
 }
 
@@ -254,7 +256,7 @@ func (t *Tokenizer) switch4(ch byte, kind1, kind2, kind3, kind4 TokenKind) Token
 	return kind1
 }
 
-func (t *Tokenizer) readString() *Token {
+func (t *Tokenizer) readTypeOrIdent() *Token {
 	s := ""
 
 	for ; !t.isEof() && (t.isLetter(t.peek()) || t.isDigit(t.peek())); t.pos++ {
@@ -271,6 +273,17 @@ func (t *Tokenizer) readString() *Token {
 	}
 
 	panic("token.go : invalid string")
+}
+
+func (t *Tokenizer) readAsciiString() *Token{
+	s := ""
+
+	for !t.isEof() && t.peek() != '"'{
+		s += string(t.peek())
+		t.pos++
+	}
+
+	return &Token{Kind:STRING, Val:s}
 }
 
 func (t *Tokenizer) readNumeric() *Token {
@@ -294,7 +307,7 @@ func (t *Tokenizer) Tokenize() []*Token {
 		}
 
 		if t.isLetter(t.peek()) {
-			tokens = append(tokens, t.readString())
+			tokens = append(tokens, t.readTypeOrIdent())
 			continue
 		}
 
@@ -391,6 +404,11 @@ func (t *Tokenizer) Tokenize() []*Token {
 				panic("' not closed")
 			}
 			t.pos++
+		case '"':
+			t.pos++
+			tokens = append(tokens, t.readAsciiString())
+			t.pos++
+
 		default:
 			panic(fmt.Sprintf("token.go : invalid charactor %s(%#v)", string(t.peek()), t.peek()))
 		}

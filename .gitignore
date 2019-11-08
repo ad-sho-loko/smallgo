@@ -2,3 +2,5 @@ smallgo
 /.idea/
 tmp*
 bugs
+/misc/
+lib

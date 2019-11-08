@@ -159,3 +159,10 @@ func TestTokenize_ReturnStmt(t *testing.T) {
 		assert.Equal(t, want, got[i])
 	}
 }
+
+func TestReadString(t *testing.T){
+	test1 := []byte("\"abcde\"")
+	tk := NewTokenizer(test1)
+	token := tk.Tokenize()
+	assert.Equal(t, token[0].Val, "abcde")
+}

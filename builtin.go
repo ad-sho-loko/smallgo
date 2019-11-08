@@ -3,9 +3,9 @@ package main
 type Type struct {
 	Kind TypeKind
 	Size int
-
 	PtrOf     Expr
 	ArraySize Expr
+	String    string
 }
 
 type TypeKind uint
@@ -15,6 +15,7 @@ const (
 	Byte
 	Ptr
 	Array
+	String
 	Function
 )
 
@@ -22,6 +23,7 @@ var builtinTypes = map[string]*Type{
 	"int":   NewInt(),
 	"int64": NewInt(),
 	"byte":  NewByte(),
+	"string":  NewString(),
 }
 
 func NewInt() *Type {
@@ -50,5 +52,12 @@ func NewFunc() *Type {
 	return &Type{
 		Kind: Function,
 		Size: 0,
+	}
+}
+
+func NewString() *Type{
+	return &Type{
+		Kind: String,
+		Size: 8,
 	}
 }
