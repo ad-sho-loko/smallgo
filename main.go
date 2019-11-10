@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
@@ -17,11 +18,20 @@ func parseOption(args []string) bool {
 		return false
 	}
 
-	if args[0] == "--trace" {
+	if args[0] == "--debug" {
 		return true
 	}
 
 	return false
+}
+
+func readFile(path string) ([]byte, error){
+	f, err := ioutil.ReadFile(path)
+	if err != nil{
+		return nil, err
+	}
+
+	return f, err
 }
 
 func main() {
@@ -33,12 +43,18 @@ func main() {
 	universe := NewScope("__universe", nil)
 	universe.DeclType = builtinTypes
 
+	f := os.Args[1]
 	isTrace := parseOption(os.Args[2:])
 
-	tokens := NewTokenizer([]byte(os.Args[1])).Tokenize()
+	b, err := readFile(f)
+	if err != nil{
+		panic(err)
+	}
+
+	tokens := NewTokenizer(b).Tokenize()
 	ast := NewParser(tokens, isTrace).ParseFile()
 
-	err := WalkAst(ast, universe)
+	err = WalkAst(ast, universe)
 
 	if err != nil {
 		panic(err)

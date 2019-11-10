@@ -1,3 +1,5 @@
+package main
+
 func F0() int { var x int x = 10 return x }
 func F1(x int) int { return x }
 func F3(x, y int) int { return x+y }

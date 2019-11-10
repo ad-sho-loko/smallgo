@@ -245,7 +245,7 @@ func TestParse_FuncDecl(t *testing.T) {
 	}
 
 	p := NewParser(test.b, false)
-	ast := p.toplevel()
+	ast := p.funcDecl()
 	assertFunc(t, ast, test.want)
 }
 

@@ -1,3 +1,5 @@
+package main
+
 func main(){
 	var x = 10
 	EXPECT("var x = 10", x, 10)

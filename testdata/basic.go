@@ -1,3 +1,5 @@
+package main
+
 func main(){
 	EXPECT("1", 1, 1)
 	EXPECT("1+1", 1+1, 2)

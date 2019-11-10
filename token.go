@@ -73,6 +73,7 @@ const (
 	IF                       // if
 	ELSE                     // else
 	FOR                      // for
+	PACKAGE					 // package
 	IDENT
 	CHAR
 	STRING
@@ -129,6 +130,7 @@ var tokenString = map[TokenKind]string{
 	IF:             "IF",
 	ELSE:           "ELSE",
 	FOR:            "FOR",
+	PACKAGE:        "package",
 	IDENT:          "IDENT",
 	CHAR:           "CHAR",
 	STRING:         "STRING",
@@ -142,6 +144,7 @@ var keywords = map[string]TokenKind{
 	"if":     IF,
 	"else":   ELSE,
 	"for":    FOR,
+	"package":PACKAGE,
 }
 
 func (t TokenKind) String() string {

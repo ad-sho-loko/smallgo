@@ -564,11 +564,8 @@ func (p *Parser) stmtBlock() *BlockStmt {
 	return b
 }
 
-func (p *Parser) toplevel() *FuncDecl {
-	if p.trace {
-		defer un(trace(p, "toplevel"))
-	}
-
+func (p *Parser) funcDecl() *FuncDecl{
+	// func
 	funcDecl := FuncDecl{}
 	funcDecl.FuncType = &FuncType{}
 
@@ -593,16 +590,29 @@ func (p *Parser) toplevel() *FuncDecl {
 	return &funcDecl
 }
 
+func (p *Parser) toplevel() []Node {
+	if p.trace {
+		defer un(trace(p, "toplevel"))
+	}
+
+	// package
+	p.expect(PACKAGE)
+	p.expect(IDENT)
+
+	var nodes []Node
+	for p.peek().Kind != EOF {
+		nodes = append(nodes, p.funcDecl())
+	}
+
+	return nodes
+}
+
 func (p *Parser) ParseFile() *Ast {
 	if p.trace {
 		un(trace(p, "PARSE START"))
 	}
 
-	var nodes []Node
-
-	for p.peek().Kind != EOF {
-		nodes = append(nodes, p.toplevel())
-	}
+	nodes := p.toplevel()
 
 	return &Ast{
 		Nodes: nodes,

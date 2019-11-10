@@ -8,10 +8,9 @@ declare -a files
 for f in ${files[@]}
 do
     echo ${f}
-    ./smallgo "$(cat testdata/${f})" > tmp.s
+    ./smallgo testdata/${f} > tmp.s
     gcc -g -o tmp tmp.s c/lib
     ./tmp
 done
 
-echo All tests success
-
+echo All tests success!

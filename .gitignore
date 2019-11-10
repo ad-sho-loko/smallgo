@@ -4,3 +4,4 @@ tmp*
 bugs
 /misc/
 lib
+_goland_test.go
