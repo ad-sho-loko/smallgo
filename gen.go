@@ -59,16 +59,34 @@ func genExpr(ast *Ast, expr Expr) {
 
 	switch e := expr.(type) {
 	case *CallFunc:
-		for i, arg := range e.Args {
+		for _, arg := range e.Args {
 			genExpr(ast, arg)
-			emit("pop rax")
-			emitf("mov %s, rax", argregs[i])
 		}
+
+		for i := range e.Args {
+			emit("pop rax")
+			argNum := len(e.Args) - i - 1
+			emitf("mov %s, rax", argregs[argNum])
+		}
+
+		// We need to align to 16 byte boundary
+		l := ast.L()
+		emit("mov rax, rsp")
+		emit("and rax, 15")
+		emitf("jnz .Lcall.align%s", l)
+		emit("mov rax, 0")
 		emitf("call %s", e.FuncName)
+		emitf("jmp .Lcall.end%s", l)
+		emitfNoIndent(".Lcall.align%s:", l)
+		emit("sub rsp, 8")
+		emit("mov rax, 0")
+		emitf("call %s", e.FuncName)
+		emit("add rsp, 8")
+		emitfNoIndent(".Lcall.end%s:", l)
 		emit("push rax")
 
 	case *Ident:
-		d("Using readIdent")
+		d("# Ident")
 		lgenExpr(ast, e)
 		emit("pop rax")
 		emit("mov rax, [rax]")
@@ -181,7 +199,7 @@ func gen(ast *Ast, n Node) {
 		emitfNoIndent("%s:", v.FuncName.Name)
 		emit("push rbp")
 		emit("mov rbp, rsp")
-		emitf("sub rsp, %d", roundup(v._FrameSize, 8))
+		emitf("sub rsp, %d", roundup(v._FrameSize, 16))
 
 		argNum := 0
 		for _, arg := range v.FuncType.Args {

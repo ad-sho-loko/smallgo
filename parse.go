@@ -361,7 +361,7 @@ func (p *Parser) binary() Expr {
 		} else if p.consume(LAND) {
 			left := n.(Expr)
 			right := p.eq().(Expr)
-			n = &Binary{Kind: LOR, Left: left, Right: right}
+			n = &Binary{Kind: LAND, Left: left, Right: right}
 		} else {
 			return n
 		}

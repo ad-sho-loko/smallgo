@@ -198,7 +198,7 @@ func (t *Tokenizer) isLetter(ch byte) bool {
 }
 
 func (t *Tokenizer) isSpace() bool {
-	return t.peek() == ' ' || t.peek() == '\t' || t.peek() == '\r'
+	return t.peek() == ' ' || t.peek() == '\t' || t.peek() == '\r' || t.peek() == '\n'
 }
 
 func (t *Tokenizer) skipSpace() {
